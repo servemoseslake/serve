@@ -1,0 +1,30 @@
+
+{% load customtags %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Document List </caption>
+    <thead>
+      <tr>
+        <td>Name</td>
+        <td>Date</td>
+        <td>Download</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.documents.all as documents %}
+      {% for doc in documents|dictsortreversed:"added"  %}
+      <tr>
+        <td> {{ doc.name }} </td>
+        <td> {{ doc.added }} </td>
+        <td><a href="{{ doc.payload.url }}"> {{ doc.friendly_name }} </a></td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3"> No documents found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,75 @@
+
+{% extends "base/body.template" %}
+
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading"> Client Appointment </div>
+        <div class="panel-body"> 
+          
+        <table class="table table-hover"> 
+          <thead>
+            <tr>
+              <td>Status</td>
+              <td>Starts</td>
+              <td>Ends</td>
+              <td>Last</td>
+              <td>First</td>
+              <td>Age</td>
+              <td>Last Visit</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {% if appointment %}
+              <td> 
+                  {% if appointment.canceled %}
+                    <p class="text-danger"> Canceled </p>
+                  {% elif appointment.seen_by %}
+                    <p class="text-success"> In-take: {{ appointment.seen_by.first_name }} </p>
+                  {% else %}
+                    <p class="text-primary"> Open </p>
+                  {% endif %}
+              </td>
+              <td> {{ appointment.start|date:"g A" }} </td>
+              <td> {{ appointment.end|date:"g A" }} </td>
+              <td> {{ appointment.last_name }} </td>
+
+              <td> {{ appointment.first_name }} </td>
+              <td> {{ appointment.age }} </td>
+              {% if prior %}
+              <td> <a href="{% url 'view_client' client_id=client.id %}"> {{ prior.start|date:"m/d/Y" }} </a> </td>
+              {% else %}
+              <td> <p class="text-success"><strong>Never</strong></p></td>
+              {% endif %}
+              {% else %}
+              <td colspan="5"> Appointment Not Found </td>  
+              {% endif %}
+            </tr>
+          </tbody>
+        </table>
+
+        {% if appointment.canceled %}
+        <a href="{% url 'reset_appointment' appointment_id=appointment.pk %}" type="button" class="btn btn-success">Reopen Appointment</a>
+        {% elif appointment.seen_by %}
+        <a href="{% url 'cancel_appointment' appointment_id=appointment.pk %}" type="button" class="btn btn-danger">Cancel Appointment</a>
+        {% else %}
+        <a href="{% url 'start_appointment' appointment_id=appointment.pk %}" type="button" class="btn btn-success">Start Appointment</a>
+        <a href="{% url 'cancel_appointment' appointment_id=appointment.pk %}" type="button" class="btn btn-danger">Cancel Appointment</a>
+        {% endif %} 
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

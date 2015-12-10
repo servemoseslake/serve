@@ -1,0 +1,26 @@
+
+<table id="client_list" class="table table-hover"> 
+  <thead>
+    <tr>
+      <td>Last</td>
+      <td>First</td>
+      <td>Birth Date</td>
+      <td>Sex</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% if clients %}
+      {% for client in clients %}
+        <tr id="client_{{ client.pk }}">
+          <td>{{ client.last_name }}</td>
+          <td>{{ client.first_name }}</td>
+          <td>{{ client.birthdate }}</td>
+          <td>{{ client.sex }}</td>
+        </tr>
+      {% endfor %}
+    {% else %}
+        <tr><td colspan="5"> No Clients Found </td></tr>
+    {% endif %}
+  </tbody>
+</table>
+

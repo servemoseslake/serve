@@ -1,0 +1,68 @@
+
+{% load customtags %}
+
+{% with client.addresses.all as addresses %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Past Addresses </caption>
+    <thead>
+      <tr>
+        <td>Street</td>
+        <td>City</td>
+        <td>State</td>
+        <td>Duration</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for address in addresses|dictsortreversed:"moved_in"|filter_none:"moved_out"  %}
+      <tr>
+        <td> {{ address.street }} {% if address.street_number %} {{ address.street_number}} {% endif %} </td>
+        <td> {{ address.city }} </td>
+        <td> {{ address.state }} </td>
+        <td> {{ address.duration|duration }} ({{ address.moved_in|date:"m/d/Y" }} to {{ address.moved_out|date:"m/d/Y" }})</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4"> No past addresses found </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endwith %}
+
+{% with client.homeless.all as homelessness %}
+
+{% if homelessness %}
+<div>
+  <table class="table table-hover">
+    <caption> Past Homelessness Incidents </caption>
+    <thead>
+      <tr>
+        <td>Location</td>
+        <td>City</td>
+        <td>Duration</td>
+        <td>Reason</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for homeless in homelessness|dictsortreversed:"started"|filter_none:"ended"  %}
+      <tr>
+        <td> {{ homeless.location }} </td>
+        <td> {{ homeless.city }} </td>
+        <td> {{ homeless.duration|duration }} ({{ homeless.started|date:"m/d/Y" }} to {{ homeless.ended|date:"m/d/Y" }}) </td>
+        <td> {{ homeless.cause }} </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3"> No past homelessness found </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endwith %}

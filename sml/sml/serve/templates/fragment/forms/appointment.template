@@ -1,0 +1,53 @@
+
+<div class="container col-sm-12">
+  <form method="post" action="#">
+    <div class="form-group">
+      <label for="last_name"> Last Name </label>
+      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="" {% if client %} value="{{ client.last_name }}" readonly {% endif %} />
+    </div>
+    <div class="form-group">
+      <label for="first_name"> First Name </label>
+      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="" {% if client %} value="{{ client.first_name }}" readonly {% endif %} />
+    </div>
+    <div class="form-group">
+      <label for="phone"> Phone (optional) </label>
+      <input type="tel" class="form-control" id="phone" name="phone" placeholder="" {% if client %} value="{{ client.primary_phone.number }}" readonly {% endif %} />
+    </div>
+    <div class="form-group">
+      <label for="birthdate"> Birth Date </label>
+      <input type="date" class="form-control" id="birthdate" name="birthdate" {% if client %} value="{{ client.birthdate|date:'Y-m-d' }}" readonly {% endif %} />
+    </div>
+    <div class="form-group">
+      <label for="start"> Appointment </label>
+      <input type="datetime-local" class="form-control" id="start" name="start" placeholder="" value="{% now 'Y-m-d' %}T{% now 'H' %}:00:00" data-toggle="tooltip" data-placement="right" title="Date and time of the appointment, rounded down to the nearest hour.">
+    </div>
+    <div class="form-group">
+      <label for="reason"> Purpose for Visit </label>
+      <div>
+        <select class="form-control" name="reason">
+          {% for reason in reason_choices %}
+          <option value="{{ reason.pk }}"> {{ reason.name }} </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="referral"> Referred By </label>
+      <div>
+        <select class="form-control" name="referral">
+          {% for referral in referral_choices %}
+          <option value="{{ referral.pk }}"> {{ referral.name }} </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% if client %}
+    <div class="form-group">
+      <input type="hidden" name="client" value="{{ client.pk }}"/>
+      <a href="{% url 'view_client' client_id=client.pk %}"> View Client Record </a>
+    </div>  
+    {% endif %}
+    <button type="submit" class="btn btn-primary"> Add to Schedule </button>
+  </form>
+</div>
+

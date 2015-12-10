@@ -1,0 +1,81 @@
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+      <div class="panel-heading"> Today's Appointments </div>
+      <div class="panel-body">
+        <table class="table table-hover"> 
+          <thead>
+            <tr>
+              <td>Time</td>
+              <td>Name</td>
+              <td>Age</td>
+              <td>Purpose</td>
+              <td>Scheduled By</td>
+              <td>First Visit</td>
+              <td>Status</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            {% if appointments %}
+              {% for apt in appointments %}
+                {% with apt.client as client %}
+                <tr>
+                  <td><a href="{% url 'appointment' appointment_id=apt.pk %}"> {{ apt.start|date:"g A" }} </a></td>
+                  <td> {{ apt.last_name }}, {{ apt.first_name }} </td>
+                  <td> {{ apt.age }} </td>
+                  <td> {{ apt.reason }} </td>
+                  <td> {{ apt.scheduled_by.first_name }} </td>
+                  <td>
+                    {% if client %} 
+                    <a href="{% url 'view_client' client_id=client.id %}"> No </a> 
+                    {% else %} 
+                    Yes 
+                    {% endif %}
+                  </td>
+                  {% if apt.canceled %} 
+                  <td>
+                    <p class="text-danger"> Canceled </p> 
+                  </td>
+                  <td>
+                    <span class="glyphicon glyphicon-remove text-danger"></span>
+                  </td>
+                  {% elif apt.seen_by %}
+                  <td>
+                    <p class="text-success"> In-take: {{ apt.seen_by.first_name }} </p>
+                  </td>
+                  <td>
+                    <span class="glyphicon glyphicon-ok text-success"></span>
+                  </td>
+                  {% else %} 
+                  {% if apt.caution %}
+                  <td>
+                    <p class="text-warning"> Open </p>
+                  </td>
+                  <td>
+                    <span class="glyphicon glyphicon-alert text-warning"></span>
+                  </td>
+                  {% else %}
+                  <td>
+                    <p class="text-primary"> Open </p>
+                  </td>
+                  <td>
+                    <span class="glyphicon glyphicon-ok text-primary"></span>
+                  </td>
+                  {% endif %}
+                  {% endif %}
+                </tr>
+                {% endwith %}
+              {% endfor %}
+            {% else %}
+                <tr><td colspan="7"> No Appointments Found </td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>

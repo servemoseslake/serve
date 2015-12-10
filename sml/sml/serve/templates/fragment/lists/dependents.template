@@ -1,0 +1,36 @@
+
+<div>
+  <table class="table table-hover">
+    <caption> Known Dependents </caption>
+    <thead>
+      <tr>
+        <td>Name</td>
+        <td>Age</td>
+        <td>Relation<td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.dependents.all as dependents %}
+      {% if dependents %}
+     
+      {% for dependent in dependents  %}
+      <tr>
+        <td> {{ dependent.name }} </td>
+        <td> {{ dependent.age }} </td>
+        <td> {{ dependent.relation }} </td>
+        <td>
+          <form action="{% url 'delete_dependent' client_id=client.pk dependent_id=dependent.pk %}" method="POST"> 
+            <input class="button btn-danger" type="submit" value="Remove" name="Remove"/>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="3"> No dependents found </td>
+      </tr>
+      {% endif %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>

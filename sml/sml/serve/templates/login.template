@@ -1,0 +1,28 @@
+
+{% extends "base/body.template" %}
+
+{% block navbar %}
+{% include "navbar/login.template" %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row col-sm-12">
+    <div class="panel panel-heading panel-info"> Enter your login credentials </div>
+    <div class="panel panel-body">
+      <form method="post" action="{% url 'login' %}">
+        <div class="form-group">
+          <label for="username"> Account </label>
+          <input type="text" class="form-control" id="username" name="username" placeholder="your account here">
+        </div>
+        <div class="form-group">
+          <label for="password"> Password </label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="your password here">
+        </div>
+        <input type="submit" class="btn btn-primary" value="Go">
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

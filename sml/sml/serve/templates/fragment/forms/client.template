@@ -1,0 +1,51 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'save_client' client_id=client.pk %}">
+  <div class="form-group">
+    <label for="last" class="control-label col-sm-2"> Last Name </label>
+    <div class="col-sm-4"><input type="text" class="form-control" name="last" value="{{ client.last_name }}"></div>
+  </div>
+  <div class="form-group">
+    <label for="first" class="control-label col-sm-2"> First Name </label>
+    <div class="col-sm-4"><input type="text" class="form-control" name="first" value="{{ client.first_name }}"></div>
+  </div>
+  <div class="form-group">
+    <label for="birthdate" class="control-label col-sm-2"> Birthdate </label>
+    <div class="col-sm-3"><input type="date" class="form-control" name="birthdate" value="{{ client.birthdate|date:'Y-m-d' }}"></div>
+  </div>
+  <div class="form-group">
+    <label for="joined" class="control-label col-sm-2"> Joined </label>
+    <div class="col-sm-3"><input type="date" class="form-control" name="joined" value="{{ client.created|date:'Y-m-d' }}" readonly></div>
+  </div>
+  <div class="form-group">
+    <label for="sex" class="control-label col-sm-2"> Sex </label>
+    <div class="col-sm-2">
+      <select class="form-control" name="sex">
+         {% for sex in sexes %}
+         <option value="{{ sex.pk }}" {% if client.sex == sex %} selected {% endif %}> {{ sex.name }} </option>
+         {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="consideration" class="control-label col-sm-2"> Consideration </label>
+    <div class="col-sm-2">
+      <select class="form-control" name="consideration">
+         {% for item in considerations %}
+         <option value="{{ item.pk }}" {% if client.consideration == item %} selected {% endif %}> {{ item.name }} </option>
+         {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="caution" class="control-label col-sm-2" data-toggle="tooltip" data-placement="right" title="Check if staff should exercise caution with this client."> Use Caution </label>
+    <div class="col-sm-2 checkbox">
+      <input type="checkbox" name="caution" {% if client.caution %} checked {% endif %}/>
+    </div>    
+  </div>
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Save {{ client.first_name }} </button>
+    </div>
+  </div>
+</form>
+

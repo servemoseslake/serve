@@ -1,0 +1,61 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'save_address' client_id=client.pk %}">
+  <fieldset id="address_block">
+    <div class="form-group">
+      <label for="street" class="control-label col-sm-2"> Street </label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="street" placeholder="" value="{{ address.street }}" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="street_number" class="control-label col-sm-2"> Apt / Room / Number </label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="street_number" placeholder="" value="{{ address.street_number|default:'' }}" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="city" class="control-label col-sm-2"> City </label>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="city" value="{{ address.city }}"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="state" class="control-label col-sm-2"> State </label>
+      <div class="col-sm-2">
+        <select class="form-control" name="state">
+          {% for state in address_states %}
+          <option value="{{ state.pk }}" {% if address.state == state %} selected {% endif %}> {{ state.name }} </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="zip" class="control-label col-sm-2"> Zip Code </label>
+      <div class="col-sm-2">
+        <input type="number" class="form-control" name="zip" value="{{ address.zip }}">
+      </div>
+    </div>
+  </fieldset>
+  <div class="form-group">
+    <label for="moved_in" class="control-label col-sm-2"> Move-in Date </label>
+    <div class="col-sm-3">
+      <input type="date" class="form-control" name="moved_in" value="{{ address.moved_in|date:'Y-m-d' }}" data-toggle="tooltip"	data-placement="right" title="Approximate date on which the client moved to this address.">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="moved_out" class="control-label col-sm-2"> Move-out Date </label>
+    <div class="col-sm-3">
+      <input type="date" class="form-control" name="moved_out" value="{{ address.moved_out|date:'Y-m-d' }}">
+    </div>
+  </div>
+  <div class="form-group">
+    <p class="col-sm-offset-2 col-sm-12 help-block"> Setting the move-out date will change the current, active address into a past address. </p>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Save Address </button>
+    </div>
+  </div>
+</form>
+

@@ -1,0 +1,39 @@
+
+{% load customtags %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Community References </caption>
+    <thead>
+      <tr>
+        <td>Name</td>
+        <td>Position</td>
+        <td>Contact</td>
+        <td>Action</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.references.all as references %}
+      {% if references %}
+     
+      {% for reference in references|dictsortreversed:"name"  %}
+      <tr>
+        <td> {{ reference.name }} </td>
+        <td> {{ reference.position }} </td>
+        <td> {{ reference.contact }} </td>
+        <td>
+          <form action="{% url 'delete_reference' client_id=client.pk reference_id=reference.pk %}" method="POST"> 
+            <input class="button btn-danger" type="submit" value="Remove" name="Remove"/>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="4"> No references found </td>
+      </tr>
+      {% endif %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>

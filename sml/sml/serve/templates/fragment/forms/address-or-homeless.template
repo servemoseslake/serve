@@ -1,0 +1,73 @@
+
+{% load customtags %}
+
+<div class="container col-sm-12">
+
+  {% with client.homeless.all|filter_not_none:"ended" as current_homelessness %}
+  {% with current_homelessness.0 as homeless %}
+
+  {% with client.addresses.all|filter_not_none:"moved_out" as current_addresses %}
+  {% with current_addresses.0 as address %}
+
+  <div class="btn-group" data-toggle="buttons">
+    <label id="address_home_label" class="btn">
+      <input type="radio" id="address_home_radio" class="address_type" value="Home" {% if address %} selected {% endif %} /> Home
+    </label>
+
+    <label id="address_homeless_label" class="btn">
+      <input type="radio" id="address_homeless_radio" class="address_type" value="Homeless" {% if homeless %} selected {% endif %}/> Homeless
+    </label>
+  </div>
+
+  <div class="sm-col-12">
+    <div id="address_home_content">
+      {% include 'fragment/forms/address.template' %}
+    </div>
+    <div id="address_homeless_content">
+      {% include 'fragment/forms/homeless.template' %}
+    </div>
+  </div>
+</div>
+
+<script>
+
+ $(".address_type").change(function() {
+   var button = $(this).val();
+   var checked = $(this).is(":checked");
+
+   if (button == "Home" && checked == true) {
+     $("#address_homeless_radio").attr("checked", false);
+     $("#address_homeless_content").hide();
+     $("#address_homeless_label").removeClass("btn-primary");
+
+     $("#address_home_content").show();
+     $("#address_home_label").addClass("btn-primary");
+   } else {
+     $("#address_home_radio").attr("checked", false);
+     $("#address_home_content").hide();
+     $("#address_home_label").removeClass("btn-primary");
+
+     $("#address_homeless_content").show();
+     $("#address_homeless_label").addClass("btn-primary");
+   }
+ });
+
+ $(document).ready(function() {
+
+  {% if address %}
+  $("#address_home_radio").trigger("click").prop("checked", true);
+  {% elif homeless %}
+  $("#address_homeless_radio").trigger("click").prop("checked", true);
+  {% else %}
+  $("#address_home_radio").trigger("click").prop("checked", true);
+  {% endif %}
+
+ });
+
+</script>
+
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+

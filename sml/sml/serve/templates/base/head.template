@@ -1,0 +1,18 @@
+{% load staticfiles %}
+
+<head>
+    <title> Serve Moses Lake - {{ title }} </title>
+
+    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap-theme.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "bower_components/bootstrap-calendar/css/calendar.css" %}">
+
+    <script type="text/javascript" src="{% static "node_modules/jquery/dist/jquery.js" %}"></script>
+    <script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/bs-typeahead/js/bootstrap-typeahead.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/editable-table/mindmup-editabletable.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/editable-table/numeric-input-example.js" %}"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+</head>

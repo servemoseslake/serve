@@ -1,0 +1,66 @@
+
+{% if appointments_upcoming %}
+{% with appointments_upcoming as appointments %}
+<table id="visits_upcoming_list" class="table table-hover"> 
+  <caption> Upcoming Appointments </caption>
+  <thead>
+    <tr>
+      <td>Date</td>
+      <td>Time</td>
+      <td>In-take</td>
+      <td>Scheduler</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appointment in appointments %}
+    <tr>
+      <td> {{ appointment.start|date:"M j Y" }} </td>
+      <td> {{ appointment.start|time:"g A" }} </td>
+      <td><a href="{% url 'appointment' appointment_id=appointment.id %}"> Pending </a></td>
+      <td> {{ appointment.scheduled_by.first_name }} </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3"> No Appointments Found </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endwith %}
+{% endif %}
+
+{% with appointments_past as appointments %}
+<table id="visits_list" class="table table-hover">
+  <caption> Past Appointments </caption>
+  <thead>
+    <tr>
+      <td>Date</td>
+      <td>Time</td>
+      <td>In-take</td>
+      <td>Scheduler</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appointment in appointments %}
+    <tr>
+      <td> {{ appointment.start|date:"M j Y" }} </td>
+      <td> {{ appointment.start|time:"g A" }} </td>
+      <td> 
+      {% if appointment.canceled %} 
+        <p class="text-danger"> Canceled </p> 
+      {% elif appointment.seen_by %} 
+        {{ appointment.seen_by.first_name }} 
+      {% else %}
+        <p class="text-danger"> No-Show </p>
+      {% endif %} 
+      </td>
+      <td> {{ appointment.scheduled_by.first_name }} </td>
+    </tr>
+    {% empty %}
+    <tr> 
+      <td colspan="3"> No Appointments Found </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endwith %}

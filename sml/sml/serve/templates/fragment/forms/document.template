@@ -1,0 +1,20 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'add_document' client_id=client.pk %}" enctype="multipart/form-data">
+  <div class="form-group">
+    <label for="phone_number" class="control-label col-sm-2"> Document Name </label>
+    <div class="col-sm-3">
+      <input type="tel" class="form-control" name="name" value=""/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="path" class="control-label col-sm-2"> File to Attach </label>
+    <div class="col-sm-6">
+      <input type="file" name="path" />
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Add Document </button>
+    </div>
+  </div>
+</form>

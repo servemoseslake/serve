@@ -1,0 +1,147 @@
+
+{% load customtags %}
+
+<div>
+  <table id="income" class="table table-hover">
+    <caption> Monthly Household Income </caption>
+    <thead>
+      <tr>
+        <th class="col-sm-4">Category</th>
+        <th class="col-sm-2">Dollars</th>
+        <th class="col-sm-1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.finances.all as finances %}
+      {% for item in finances %}
+      {% if item.category.name == 'Income' %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.amount }}</td>
+        <td data-editable="false"><span class="removal glyphicon glyphicon-remove" style="color:maroon" aria-hidden="true"></span></td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>Total Monthly Income</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <table class="table table-hover">
+    <tr>
+      <td>
+        <span id="add_income" class="glyphicon glyphicon-plus" style="color:green" aria-hidden="true"></span>
+      </td>
+    </tr>
+  </table>
+
+  <table id="expenses" class="table table-hover">
+    <caption> Monthly Household Expenses </caption>
+    <thead>
+      <tr>
+        <th class="col-sm-4">Category</th>
+        <th class="col-sm-2">Dollars</th>
+        <th class="col-sm-1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.finances.all as finances %}
+      {% for item in finances %}
+      {% if item.category.name == 'Expense' %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.amount }}</td>
+        <td data-editable="false"><span class="removal glyphicon glyphicon-remove" style="color:maroon" aria-hidden="true"></span></td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>Total Monthly Expenses</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <table class="table table-hover">
+    <tr>
+      <td><span id="add_expense" class="glyphicon glyphicon-plus" style="color:green" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Add additional expense line."></span>
+    </tr>
+  </table>
+
+  {% with client.finances.all|finances_summary as summary %}
+  <table class="table table-hover">
+    <caption> Subtotal </caption>
+    <thead>
+      <th class="col-sm-4"> {{ summary.0|title }} </th>
+      <th class="col-sm-2"> <p class="text-{% if summary.1 < 0 %}danger{% else %}success{% endif %}"> {{ summary.1 }} </p> </th>
+      <th class="col-sm-1"/>
+    </thead>
+    <tbody/>
+  </table>
+  {% endwith %}
+
+  <div class="container">
+    <button id="save_finances" class="btn btn-success">Save Finances</button>
+  </div>
+</div>
+
+<script>
+  $('#income').editableTableWidget().numericInputExample();
+  $('#expenses').editableTableWidget().numericInputExample();
+
+  var newItem = '<tr><td> New Item </td><td>0</td><td data-editable="false"><span class="removal glyphicon glyphicon-remove" style="color:maroon" aria-hidden="true"></span></td></tr>';
+
+  $(function() {
+    $(document).on('click', '#add_income', function() {
+      $('#income > tbody:last').append(newItem);
+      $('#income').editableTableWidget().numericInputExample();
+      $('#income > tbody > tr:last > td:first').focus().click();
+    });
+
+    $(document).on('click', '#add_expense', function() {
+      $('#expenses > tbody:last').append(newItem);
+      $('#expenses').editableTableWidget().numericInputExample();
+      $('#expenses > tbody > tr:last > td:first').focus().click();
+    });
+
+    $(document).on('click', '.removal', function() {
+      var row = $(this).closest('tr');
+      row.remove();
+    });
+
+    $(document).on('click', '#save_finances', function() {
+      function append(hash, rows) {
+        rows.each(function() {
+          var columns = $(this).children();
+          var name = columns[0].innerText.trim();
+          var amount = parseFloat(columns[1].innerText);
+
+          if (name != '' && name != 'New Item') {
+            hash[name] = amount;
+          }
+        });
+      }
+
+      var data = {'client_id': {{ client.pk }}, 'income': {}, 'expenses': {}};
+
+      append(data['income'], $(document).find('#income > tbody > tr'));
+      append(data['expenses'], $(document).find('#expenses > tbody > tr'));
+
+      $.ajax({
+        url: '{% url "save_finances" client_id=client.pk %}',
+        data: JSON.stringify(data),
+        method: 'post',
+        dataType: 'json',
+        contentType: 'application/json',
+      });
+    });
+  });
+</script>

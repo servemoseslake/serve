@@ -1,0 +1,30 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'add_conviction' client_id=client.pk %}">
+  <div class="form-group">
+    <label for="conviction_classification" class="control-label col-sm-2"> Conviction Type </label>
+    <div class="col-sm-2">
+      <select class="form-control" name="conviction_classification">
+        {% for choice in conviction_choices %}
+        <option value="{{ choice.pk }}"> {{ choice.name }} </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="conviction_date" class="control-label col-sm-2"> Date of Conviction </label>
+    <div class="col-sm-3">
+      <input type="date" class="form-control" name="conviction_date" value="" data-toggle="tooltip" data-placement="right" title="Approximate date of the conviction."/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="conviction_officer" class="control-label col-sm-2"> Correction Officer </label>
+    <div class="col-sm-4">
+      <input type="text" class="form-control" name="conviction_officer" value="" />
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Add Conviction </button>
+    </div>
+  </div>
+</form>

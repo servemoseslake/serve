@@ -1,0 +1,124 @@
+
+{% block navbar %}
+
+    <nav class="navbar navbar-default">
+
+      <div class="container-fluid">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'index' %}"> Serve Moses Lake </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-left">
+            <li>
+              <form class="navbar-form" role="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" size="35" autocomplete="off" class="form-control typeahead" id="client_search" name="client_search" placeholder="Client Name, Phone, or Birthday.." data-toggle="tooltip" data-placement="right" title="Content in the search box will be used to find clients by last name, first name, and phone number. All name matches are case-insensitive. Matches are displayed when found."/>
+                </div>
+              </form>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-jusitifed">
+            <li>
+              <form method="get" action="{% url 'new_appointment' %}">
+                <button type="submit" class="btn navbar-btn btn-primary"> New Appointment </button>
+              </form>
+            </li>
+            <li><a href="{% url 'view_calendar' %}"> Appointment Calendar </a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><p class="navbar-text"> {{ user.get_full_name }} </p></li>
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                <button type="submit" class="btn navbar-btn btn-success">Sign Out</button>
+              </form>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav> 
+
+    <div class="container">
+    <div class="modal fade" id="search_results_modal" tabindex="-1" role="dialog" aria-labelledby="search_results_title" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div id="search_results_title" class="modal-title"> Search Results </div>
+          </div>
+          <div class="modal-body">
+            <div id="search_results"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+<script>
+
+  $(function() {
+    $(document).on('click', '#search_results_modal > div > div > div > table > tbody > tr', function() {
+      var id = jQuery(this).attr('id');
+
+      if (id !== undefined) {
+        var client_id = id.split('_', 2)[1];
+        window.location.href = '{% url "view_client" client_id=0 %}'.replace(0, client_id) ;
+      }
+    });
+  });
+
+  $(function() { 
+    function list_clients(type, name) {
+      $.ajax({
+        url: '{% url "list_clients" %}',
+        data: 'type=' + type + '&name=' + name,
+        method: 'get'
+      })
+      .done(function(data) {
+        $('#search_results').replaceWith(data);
+        $('#search_results_modal').modal('show');
+        $('#client_search').val('');
+      });
+    };
+
+    $('#client_search').typeahead({
+      onSelect: function(item) {
+        var parts = item.value.split('|', 2);
+        list_clients(parts[0], parts[1]);
+      },
+
+      ajax: {
+        url: '{% url "search_clients" %}',
+        method: 'get',
+        triggerLength: 3,
+        dataType: 'JSON',
+
+        preProcess: function (data) {
+          var results = []
+
+          for (var i=0; i < data.length; i++) {
+            var matches = data[i].matches;
+            if (matches > 0) {
+              results.push({id: data[i].id, type: data[i].type, query: data[i].name, name: data[i].name + ' ' + '(' + data[i].type + ', ' + data[i].matches + ' matches)'});
+            }
+          }
+
+          return results;
+        }
+      }
+    });
+  });
+
+</script>
+
+
+ 
+{% endblock %}

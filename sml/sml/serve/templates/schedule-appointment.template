@@ -1,0 +1,111 @@
+
+{% extends "base/body.template" %}
+
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+{% load staticfiles %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading"> Schedule Appointment </div>
+        <div class="panel-body">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#new" data-toggle="tab"> {% if client %} Returning {% else %} New {% endif %} Client </a></li>
+            <li><a href="#select" data-toggle="tab">Existing Client</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="new">
+              {% include "fragment/forms/appointment.template" %}
+            </div>
+            <div class="tab-pane" id="select">
+              <div class="container col-sm-12">
+                <div id="content">
+                  <form method="post" action="#">
+                    <div class="form-group">
+                      <label for="name_search"> Search </label>
+                      <input type="text" autocomplete="off" class="form-control typeahead" id="name_search" name="name_search" placeholder="First, Last, or Full Name.." data-toggle="tooltip" data-placement="right" title="Content in the search box will be used to find clients by last name, first name, full name, and phone number. All name matches are case-insensitive. Matches are displayed when found."/>
+                    </div>
+                  </form>
+                  <div>
+                    {% include "fragment/lists/clients.template" %}
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="panel panel-danger">
+      <div class="panel-heading"> ERROR </div>
+      <div class="panel-body panel-danger"> {{ error }} </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+
+  $(function() {
+    $(document).on('click', '#client_list > tbody > tr', function() {
+      var id = jQuery(this).attr('id');
+
+      if (id !== undefined) {
+        var client_id = id.split('_', 2)[1];
+        window.location.href = '{% url "new_appointment" %}?client=' + client_id;
+      }
+    });
+  });
+
+  $(function() { 
+    function list_clients(type, name) {
+      $.ajax({
+        url: '{% url "list_clients" %}',
+        data: 'type=' + type + '&name=' + name,
+        method: 'get'
+      })
+      .done(function(data) {
+        $('#client_list').replaceWith(data);
+        $('#name_search').val('');
+      });
+    };
+
+    $('#name_search').typeahead({
+      onSelect: function(item) {
+        var parts = item.value.split('|', 2);
+        list_clients(parts[0], parts[1]);
+      },
+
+      ajax: {
+        url: '{% url "search_clients" %}',
+        method: 'get',
+        triggerLength: 3,
+        dataType: 'JSON',
+
+        preProcess: function (data) {
+          var results = []
+
+          for (var i=0; i < data.length; i++) {
+            var matches = data[i].matches;
+            if (matches > 0) {
+              results.push({id: data[i].id, type: data[i].type, query: data[i].name, name: data[i].name + ' ' + '(' + data[i].type + ', ' + data[i].matches + ' matches)'});
+            }
+          }
+
+          return results;
+        }
+      }
+    });
+  });
+
+</script>
+
+ 
+{% endblock %}
+

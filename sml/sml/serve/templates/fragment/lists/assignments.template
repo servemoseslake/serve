@@ -1,0 +1,83 @@
+
+{% load customtags %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Current Assignments </caption>
+    <thead>
+      <tr>
+        <td>Category</td>
+        <td>Assigned</td>
+        <td>Due</td>
+        <td>By</td>
+        <td>Details</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.assignments.all as assignments %}
+      {% with assignments|filter_false:"completed"|filter_false:"abandoned"|dictsortreversed:"when" as assignments %}
+     
+      {% for assignment in assignments %}
+      <tr>
+        <td> {{ assignment.category }} </td>
+        <td> {{ assignment.when|date:"m/d/Y" }} </td>
+        <td> {{ assignment.due|date:"m/d/Y" }} </td>
+        <td> {{ assignment.assigned_by.first_name }} </td>
+        <td> <span data-toggle="tooltip" data-placement="right" title="{{ assignment.details }}"> {{ assignment.details|truncatechars:32 }} </span></td>
+        <td>
+          <form method="POST" action="{% url 'complete_assignment' client_id=client.pk assignment_id=assignment.pk %}"> 
+            <input type="submit" class="button btn-success" value="complete" name="complete"/> 
+            <input type="submit" class="button btn-danger" value="abandon" name="abandon"/> 
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6"> No active assignments found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <table class="table table-hover">
+    <caption> Past Assignments </caption>
+    <thead>
+      <tr>
+        <td>Category</td>
+        <td>Assigned</td>
+        <td>Due</td>
+        <td>By</td>
+        <td>Details</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.assignments.all as assignments %}
+      {% with assignments|filter_true:"completed"|dictsortreversed:"when" as assignments_1 %}
+      {% with assignments|filter_true:"abandoned"|dictsortreversed:"when" as assignments_2 %}
+      {% with assignments_1|flatten:assignments_2|dictsortreversed:"when" as assignments %}
+    
+      {% for assignment in assignments %}
+      <tr>
+        <td> {{ assignment.category }} </td>
+        <td> {{ assignment.when|date:"m/d/Y" }} </td>
+        <td> {% if assignment.abandoned %} Abandoned {% else %} {{ assignment.due|date:"m/d/Y" }} {% endif %} </td>
+        <td> {{ assignment.assigned_by.first_name }} </td>
+        <td> <span data-toggle="tooltip" data-placement="right" title="{{ assignment.details }}"> {{ assignment.details|truncatechars:32 }} </span></td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5"> No past assignments found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+      {% endwith %}
+      {% endwith %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>

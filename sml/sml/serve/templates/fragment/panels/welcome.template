@@ -1,0 +1,19 @@
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+      <div class="panel-heading"> Summary </div>
+      <div class="panel-body">
+        <p> Welcome, {{ user.first_name }}!</p><p> Here is a summary for {{ now|date:"l" }}, {{ now|date:"F j Y" }} </p>
+        <ul>
+          <li> There are {{ appointments.count }} appointments scheduled for today </li>
+          <li> There are {{ assignments_today.count }} assignments due to be completed today </li>
+          <li> There are {{ client_count }} clients served by Serve Moses Lake! </li>
+        </ul>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+

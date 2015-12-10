@@ -1,0 +1,7 @@
+
+__pycache__
+.pyc
+.pyo
+
+media/*
+sml/serve/migrations/*

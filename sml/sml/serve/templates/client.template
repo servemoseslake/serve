@@ -1,0 +1,130 @@
+
+{% extends "base/body.template" %}
+
+{% load customtags %}
+
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading"> {{ client.first_name }} {{ client.last_name }} </div>
+            <div class="panel-body">
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#general" data-toggle="tab">General</a></li>
+                <li><a href="#address" data-toggle="tab"> Address ({{ client.addresses.all.count }}) </a></li>
+                <li><a href="#phone" data-toggle="tab">Phone ({{ client.phones.all.count }}) </a></li>
+                <li><a href="#dependents" data-toggle="tab">Dependents ({{ client.dependents.all.count }}) </a></li>
+                <li><a href="#employment" data-toggle="tab">Employment ({{ client.employment.all.count }}) </a></li>
+                <li><a href="#references" data-toggle="tab">References ({{ client.references.all.count }}) </a></li>
+                <li><a href="#finances" data-toggle="tab">Finances</a></li>
+                <li><a href="#assistance" data-toggle="tab">Assistance ({{ client.assistance.all.count }}) </a></li>
+                <li><a href="#assignments" data-toggle="tab">Assignments ({{ client.assignments.all|filter_false:"completed"|filter_false:"abandoned"|length }}) </a></li>
+                <li><a href="#convictions" data-toggle="tab">Convictions ({{ client.convictions.all.count }}) </a></li>
+                <li><a href="#church" data-toggle="tab">Church ({{ client.churches.all.count }}) </a></li>
+                <li><a href="#visits" data-toggle="tab">Visits ({{ client.appointments.all.count }}) </a></li>
+                <li><a href="#documents" data-toggle="tab">Documents ({{ client.documents.all.count }}) </a></li>
+              </ul>
+              <div class="tab-content">
+                <div class="tab-pane active" id="general">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/client.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="address">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/address-or-homeless.template' %}
+                    {% include 'fragment/lists/addresses.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="phone">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/phone.template' %}
+                    {% include 'fragment/lists/phones.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="dependents">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/dependent.template' %}
+                    {% include 'fragment/lists/dependents.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="employment">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/employment.template' %}
+                    {% include 'fragment/lists/employers.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="references">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/reference.template' %}
+                    {% include 'fragment/lists/references.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="finances">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/finances.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="assistance">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/assistance.template' %}
+                    {% include 'fragment/lists/assistance.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="assignments">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/assignment.template' %}
+                    {% include 'fragment/lists/assignments.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="convictions">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/conviction.template' %}
+                    {% include 'fragment/lists/convictions.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="church">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/church.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="visits">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/lists/visits.template' %}
+                  </div>
+                </div>
+                <div class="tab-pane" id="documents">
+                  <div class="container col-sm-12">
+                    {% include 'fragment/forms/document.template' %}
+                    {% include 'fragment/lists/documents.template' %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if error %}
+          <div class="panel panel-danger">
+            <div class="panel-heading"> ERROR </div>
+            <div class="panel-body panel-danger"> {{ error }} </div>
+          </div>
+          {% endif %}
+
+          <div class="panel panel-primary">
+            <div class="panel-heading"> Comments ({{ client.comments.all.count }}) </div>
+            <div class="panel-body"> 
+              {% include 'fragment/lists/comments.template' %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+{% endblock %}

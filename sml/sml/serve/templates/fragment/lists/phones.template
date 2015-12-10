@@ -1,0 +1,37 @@
+
+{% load customtags %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Listed Phone Numbers </caption>
+    <thead>
+      <tr>
+        <td>Number</td>
+        <td>Primary</td>
+        <td>Action</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.phones.all as phones %}
+      {% if phones %}
+     
+      {% for phone in phones|dictsortreversed:"primary"  %}
+      <tr>
+        <td> {{ phone.number|phone }} </td>
+        <td> {% if phone.primary %} Yes {% else %} No {% endif %} </td>
+        <td>
+          <form action="{% url 'delete_phone' client_id=client.pk phone_id=phone.pk %}" method="POST"> 
+            <input class="button btn-danger" type="submit" value="Remove" name="Remove"/>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="3"> No phone numbers found </td>
+      </tr>
+      {% endif %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>

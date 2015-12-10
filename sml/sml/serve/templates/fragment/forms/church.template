@@ -1,0 +1,38 @@
+
+{% with client.churches.all.0 as church %}
+
+<form class="form-horizontal" method="POST" action="{% url 'save_church' client_id=client.pk %} ">
+  <div class="form-group">
+    <label for="church_name" class="control-label col-sm-2"> Church Name </label>
+    <div class="col-sm-4">
+      <input type="text" class="form-control" name="church_name" value="{{ church.name }}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="church_attendence" class="control-label col-sm-2"> Attendance </label>
+    <div class="col-sm-2">
+      <select class="form-control" name="church_attendence">
+        {% for frequency in frequencies %}
+        <option value="{{ frequency.pk }}" {% if church.attendence == frequency %} selected {% endif %} > {{ frequency.name }} </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="church_connection" class="control-label col-sm-2"> Connectivity </label>
+    <div class="col-sm-3">
+      <select class="form-control" name="church_connection">
+        {% for connection in church_connection_choices %}
+        <option value="{{ connection.pk }}" {% if church.connection == connection %} selected {% endif %} > {{ connection.name }} </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success">Save Church</button>
+    </div>
+  </div>
+</form>
+
+{% endwith %}

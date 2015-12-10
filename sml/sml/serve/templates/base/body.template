@@ -1,0 +1,17 @@
+{% load staticfiles %}
+
+<!doctype html>
+<html>
+
+{% include "base/head.template" %}
+
+<body>
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+</body>
+
+</html>

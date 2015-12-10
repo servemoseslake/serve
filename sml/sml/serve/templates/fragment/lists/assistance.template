@@ -1,0 +1,150 @@
+
+{% load customtags %}
+
+<div>
+  <table class="table table-hover">
+    <caption> Assistance Requests - Ready for Issue </caption>
+    <thead>
+      <tr>
+        <td>Category</td>
+        <td>Assigned</td>
+        <td>Value</td>
+        <td>By</td>
+        <td>Assignment</td>
+        <td>Details</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.assistance.all as requests %}
+      {% with requests|filter_not_none:"issued"|filter_false:"blocked"|filter_false:"rejected"|dictsortreversed:"when" as requests %}
+     
+      {% for request in requests %}
+      <tr>
+        <td> {{ request.category }} </td>
+        <td> {{ request.when|date:"m/d/Y" }} </td>
+        <td> {{ request.value }} </td>
+        <td> {{ request.assisted_by.first_name }} </td>
+        <td> {% if request.assignment %} {{ request.assignment.category }} {% else %} N/A {% endif %}
+        <td> <span data-toggle="tooltip" data-placement="right" title="{{ request.details }}"> {{ request.details|truncatechars:32 }} </span> </td>
+        <td> 
+          <form method="POST" action="{% url 'save_assistance' client_id=client.pk assistance_id=request.pk %}">
+            <input type="submit" name="issue" class="button btn-success" value="issue"/>
+            <input type="submit" name="block" class="button btn-warning" value="block"/>
+            <input type="submit" name="reject" class="button btn-danger" value="reject"/>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7"> No current assistance requests found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <table class="table table-hover">
+    <caption> Assistance Requests - Blocked by Assignment </caption>
+    <thead>
+      <tr>
+        <td>Category</td>
+        <td>Assigned</td>
+        <td>Value</td>
+        <td>By</td>
+        <td>Assignment</td>
+        <td>Details</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.assistance.all as requests %}
+      {% with requests|filter_not_none:"issued"|filter_true:"blocked"|dictsortreversed:"when" as requests %}
+
+      {% for request in requests %}
+      <tr>
+        <form method="POST" action="{% url 'save_assistance' client_id=client.pk assistance_id=request.pk %}">
+          <td> {{ request.category }} </td>
+          <td> {{ request.when|date:"m/d/Y" }} </td>
+          <td> {{ request.value }} </td>
+          <td> {{ request.assisted_by.first_name }} </td>
+          <td>
+            {% if request.assignment %}
+            {{ request.assignment.category }}
+            {% else %}
+              <select name="assistance_assignment">
+                <option value="NONE"> N/A </option>
+                {% with client.assignments.all|filter_false:"completed" as assignments %}
+                {% for assignment in assignments %}
+                <option value="{{ assignment.pk }}"> {{ assignment.category }} </option>
+                {% endfor %}
+                {% endwith %}
+              </select>
+            {% endif %}
+          </td>
+          <td> <span data-toggle="tooltip" data-placement="right" title="{{ request.details }}"> {{ request.details|truncatechars:32 }} </span> </td>
+          <td>
+            {% if not request.assignment %}
+            <td>
+              <input type="submit" name="assign" class="button btn-success" value="update"/>
+            </td>
+            {% endif %}
+        </form>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6"> No past assistance requests found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <table class="table table-hover">
+    <caption> Past Assistance Requests </caption>
+    <thead>
+      <tr>
+        <td>Category</td>
+        <td>Assigned</td>
+        <td>Issued</td>
+        <td>Value</td>
+        <td>By</td>
+        <td>Assignment</td>
+        <td>Details</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.assistance.all as requests %}
+      {% with requests|filter_none:"issued"|dictsortreversed:"when" as requests_1 %}
+      {% with requests|filter_true:"rejected"|dictsortreversed:"when" as requests_2 %}
+      {% with requests_1|flatten:requests_2|dictsortreversed:"when" as requests %}
+     
+      {% for request in requests %}
+      <tr>
+        <td> {{ request.category }} </td>
+        <td> {{ request.when|date:"m/d/Y" }} </td>
+        <td> {% if request.rejected %} Rejected {% else %} {{ request.issued|date:"m/d/Y" }} {% endif %} </td>
+        <td> {{ request.value }} </td>
+        <td> {{ request.assisted_by.first_name }} </td>
+        <td> {% if request.assignment %} {{ request.assignment.category }} {% else %} N/A {% endif %}
+        <td> <span data-toggle="tooltip" data-placement="right" title="{{ request.details }}"> {{ request.details|truncatechars:32 }} </span> </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7"> No past assistance requests found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+      {% endwith %}
+      {% endwith %}
+      {% endwith %}
+    </tbody>
+  </table>
+</div>
+

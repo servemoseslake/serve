@@ -1,0 +1,109 @@
+
+{% load customtags %}
+
+<div>
+  <table id="comment_list" class="table table-hover">
+    <thead>
+      <tr>
+        <td>Date</td>
+        <td>Author</td>
+        <td>Comment</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% with client.comments.all as comments %}
+     
+      {% for comment in comments|dictsortreversed:"created"  %}
+
+      {% if comment.category.name == 'Warning' %} 
+      <tr id="comment_{{ comment.pk }}" class="danger">
+      {% elif comment.category.name == 'Caution' %} 
+      <tr id="comment_{{ comment.pk }}" class="warning">
+      {% else %}
+      <tr id="comment_{{ comment.pk }}">
+      {% endif %} 
+        <td> {{ comment.created|date:"m/d/Y" }} </td>
+        <td> {{ comment.author.first_name }} </td>
+        <td> {{ comment.content|truncatechars:32 }} </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3"> No comments found </td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+  </table>
+  <button id="add_comment_button" class="btn btn-success">Add Comment</button>
+</div>
+
+<div class="container">
+  <div class="modal fade" id="view_comment_modal" tabindex="-1" role="dialog" aria-labelledby="view_comment_modal_title" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div id="view_comment_modal_title" class="modal-title"> Comment about {{ client.full_name }} </div>
+        </div>
+        <div class="modal-body">
+          <div id="view_comment">
+            <div id="view_comment_content">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="modal fade" id="add_comment_modal" tabindex="-1" role="dialog" aria-labelledby="add_comment_modal_title" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div id="add_comment_modal_title" class="modal-title"> Comment about {{ client.full_name }} </div>
+        </div>
+        <div class="modal-body">
+          <div id="add_comment">
+            {% include 'fragment/forms/comment.template' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  $(function() {
+    var original = $('#view_comment_content').clone();
+
+    $(document).on('click', '#comment_list > tbody > tr', function() {
+      var id = jQuery(this).attr('id');
+
+      if (id !== undefined) {
+        var comment_id = id.split('_', 2)[1];
+
+        $.ajax({
+          url: '{% url "get_comment" %}',
+          data: 'id=' + comment_id,
+          method: 'get'
+        })
+        .done(function(data) {
+          $('#view_comment_content').replaceWith(data);
+          $('#view_comment_modal').modal('show');
+        });
+      }
+    });
+
+    $('#view_comment_modal').on('hidden.bs.modal', function() {
+      $('#view_comment').html(original);
+    });
+  });  
+
+  $(function() {
+    $(document).on('click', '#add_comment_button', function() {
+      $('#add_comment_modal').modal('show');
+    });
+  });
+ 
+</script>

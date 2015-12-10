@@ -1,0 +1,43 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'add_assistance' client_id=client.pk %}">
+  <fieldset id="assistance_block">
+    <div class="form-group">
+      <label for="category" class="control-label col-sm-2"> Category </label>
+
+      <div class="col-sm-4">
+        <select class="form-control" name="category">
+          {% for category in assistance_category_choices %}
+          <option value="{{ category.pk }}"> {{ category.name }} </option>
+          {% endfor %}
+        </select>
+      </div> 
+    </div>
+
+    <div class="form-group">
+      <label for="value" class="control-label col-sm-2"> Dollar Value </label>
+      <div class="col-sm-2">
+        <input type="number" class="form-control" name="value"/>
+      </div> 
+    </div>
+
+  <div class="form-group">
+    <label for="started" class="control-label col-sm-2"> Date </label>
+    <div class="col-sm-2">
+      <input type="date" class="form-control" name="started" data-toggle="tooltip" data-placement="right" title="The approximate date on which the request was made.">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="details" class="control-label col-sm-2"> Description of Request </label>
+    <div class="col-sm-4">
+      <textarea class="form-control" name="details"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Add Request </button>
+    </div>
+  </div>
+</form>
+

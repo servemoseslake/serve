@@ -1,0 +1,14 @@
+
+{% extends "base/body.template" %}
+
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+{% include "fragment/panels/welcome.template" %}
+{% include "fragment/panels/appointment.template" %}
+{% include "fragment/panels/todo.template" %}
+{% include "fragment/panels/overdue.template" %}
+{% endblock %}
+

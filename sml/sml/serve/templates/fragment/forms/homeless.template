@@ -1,0 +1,58 @@
+
+<form class="form-horizontal" method="POST" action="{% url 'save_homeless' client_id=client.pk %}">
+  <fieldset id="address_block">
+    <div class="form-group">
+      <label for="location" class="control-label col-sm-2"> Location </label>
+
+      <div class="col-sm-4">
+        <select class="form-control" name="location">
+          {% for location in homeless_locations %}
+          <option value="{{ location.pk }}" {% if homeless.location == location %} selected {% endif %}> {{ location.name }} </option>
+          {% endfor %}
+        </select>
+      </div> 
+    </div>
+
+    <div class="form-group">
+      <label for="city" class="control-label col-sm-2"> City </label>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="city" value="{{ homeless.city }}"/>
+      </div> 
+    </div>
+
+  <div class="form-group">
+    <label for="started" class="control-label col-sm-2"> Started </label>
+    <div class="col-sm-3">
+      <input type="date" class="form-control" name="started" value="{{ homeless.started|date:'Y-m-d' }}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="ended" class="control-label col-sm-2"> Ended </label>
+    <div class="col-sm-3">
+      <input type="date" class="form-control" name="ended" value="{{ homeless.ended|date:'Y-m-d' }}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <p class="col-sm-offset-2 col-sm-12 help-block"> Setting the Ended date will change the current, active homelessness incident into a past occurance. </p>
+  </div>
+
+  <div class="form-group">
+    <label for="cause" class="control-label col-sm-2"> Cause </label>
+    <div class="col-sm-4">
+      <select class="form-control" name="cause">
+        {% for cause in homeless_causes %}
+        <option value="{{ cause.pk }}" {% if homeless.cause == cause %} selected="selected" {% endif %}/> {{ cause.name }} </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-2 col-sm-offset-2">
+      <button type="submit" class="btn btn-success"> Save Homeless Info </button>
+    </div>
+  </div>
+</form>
+
