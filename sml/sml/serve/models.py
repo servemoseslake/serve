@@ -98,7 +98,7 @@ class Appointment (models.Model):
 
     def save(self, *args, **kwargs):
         self.start = self.nearest_start
-        return super().save(*args, **kwargs)
+        return super(Appointment, self).save(*args, **kwargs)
 
     @classmethod
     def create(cls, last_name, first_name, birthdate, start, referral, reason, user, phone=None): 
@@ -177,7 +177,7 @@ class Phone (models.Model):
 
     def save(self, *args, **kwargs):
         self.number = re.sub(r'\D', '', self.number)
-        return super().save(*args, **kwargs)
+        return super(Phone, self).save(*args, **kwargs)
 
     @classmethod
     def create(cls, number, client, primary=True):

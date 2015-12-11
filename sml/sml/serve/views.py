@@ -1,8 +1,9 @@
 import json
 
+from time import mktime
 from string import Template
 from functools import partial
-from datetime import datetime, timedelta, date, timezone
+from datetime import datetime, timedelta, date
 
 from django.shortcuts import render_to_response, redirect
 from django.http import JsonResponse
@@ -246,7 +247,6 @@ def get_calendar_appointments(request):
     start = datetime.fromtimestamp(start)
     end = int(request.GET['to']) / 1000
     end = datetime.fromtimestamp(end)
-    zone = request.GET['browser_timezone']
 
     epoch = datetime.fromtimestamp(0)
 
@@ -260,7 +260,7 @@ def get_calendar_appointments(request):
         return 'scheduled', 'event-info'
 
     def convert_datetime(dt):
-        dt = dt.timestamp()
+        dt = mktime(dt.timetuple()) + dt.microsecond / 1e6
         return int(dt * 1000)
 
     appointments = [ 
