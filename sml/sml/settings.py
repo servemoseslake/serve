@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = ''
+SECRET_KEY = '61udb@5vdm_tja^cn7xkxtjh2$wmpddz@7b#k91$c!+-t9pm(@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -41,16 +41,14 @@ INSTALLED_APPS = (
     'sml.serve',
 )
 
-# TODO: Populate before deployment
-AWS_STORAGE_BUCKET_NAME = ''
-AWS_ACCESS_KEY_ID = ''
-AWS_SECRET_ACCESS_KEY = ''
+AWS_STORAGE_BUCKET_NAME = 'serve-app'
+AWS_ACCESS_KEY_ID = 'AKIAIILGJDD765WVYA3Q'
+AWS_SECRET_ACCESS_KEY = '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'
 AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 
 STATIC_URL = "https://{}/".format(AWS_S3_CUSTOM_DOMAIN)
 STATICFILES_LOCATION = 'static'
 STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "https://{}/{}/".format(AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
@@ -103,10 +101,10 @@ WSGI_APPLICATION = 'sml.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'NAME': 'serve',
+        'USER': 'serve',
+        'PASSWORD': 'ServeMosesLake!',
+        'HOST': 'serve-micro-1.cg8sgcbdw3j2.us-west-2.rds.amazonaws.com',
         'PORT': '5432',
         'CONN_MAX_AGE': 300,
     }
@@ -136,9 +134,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-#STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, 'static'),
     '/home/centos/production/serve/sml/sml/components',
 )
 
@@ -152,5 +148,3 @@ FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
 
-#MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
-#MEDIA_URL='/content/'
