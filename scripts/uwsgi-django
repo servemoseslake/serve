@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ $UID -ne 0 ]; then
+  echo "Use as root."
+  exit 1
+fi
+
+USER=$1
+HOME_DIR=/home/${USER}/production
+
+if [ -z "$USER" ]; then
+  echo "Require user as parameter 1."
+  exit 1
+fi
+
+echo "Changing to user ${USER}."
+
+su $USER --login -c "cd ${HOME_DIR} ; source venv/bin/activate ; uwsgi --emperor --daemonize wsgi/sites/sml.ini ; deactivate" 

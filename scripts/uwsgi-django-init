@@ -1,0 +1,32 @@
+#!/bin/bash
+# 
+
+BIN=/usr/local/bin/uwsgi-django
+USER=centos
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+usage ()
+{
+  echo $"Usage: $0 {start|stop}" 1>&2
+}
+
+start ()
+{
+  echo "Starting uWSGI Django stack.."
+  $BIN $USER
+}
+
+stop ()
+{
+  echo "Stopping uWSGI Django stack.."
+  killall -QUIT uwsgi
+}
+
+case "$1" in
+    stop) stop ;;
+    start) start ;;
+    *) usage ;;
+esac
+
