@@ -612,10 +612,14 @@ class Assistance (models.Model):
         )
 
 
+def document_path(instance, filename):
+    return '/'.join(['clients', 'documents', str(instance.client.pk), filename])
+
+
 class Document (models.Model):
     name = models.CharField(max_length=128)
     added = models.DateField()
-    payload = models.FileField(upload_to='documents/', max_length=256)
+    payload = models.FileField(upload_to=document_path, max_length=256)
     client = models.ForeignKey('Client', related_name='documents')
 
     @property
