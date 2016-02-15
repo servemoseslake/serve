@@ -144,8 +144,8 @@ class HomelessAdmin (admin.ModelAdmin, ClientNameMixin):
 
 @admin.register(Dependent)
 class DependentAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'name', 'birthdate', 'relation')
-    search_fields = ['client__last_name', 'client__first_name']
+    list_display = ('client_name', 'full_name', 'birthdate', 'relation')
+    search_fields = ['full_name', 'client__last_name', 'client__first_name']
 
 
 @admin.register(Employment)
