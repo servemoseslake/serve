@@ -275,6 +275,9 @@ class Dependent (models.Model):
     def full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
+    def __str__(self):
+        return self.full_name
+
     @classmethod
     def create(cls, last_name, first_name, birthdate, relation, client):
         return cls(
@@ -456,6 +459,7 @@ class Comment (models.Model):
 
 class FinanceCategory (models.Model):
     name = models.CharField(max_length=128)
+    type = models.IntegerField(choices=((0, 'Income'), (1, 'Expense')))
 
     class Meta:
         verbose_name = 'Finance Category'
@@ -467,17 +471,17 @@ class FinanceCategory (models.Model):
 
 class Finance (models.Model):
     amount = models.IntegerField()
-    name = models.CharField(max_length=64)
     category = models.ForeignKey('FinanceCategory', related_name='finances')
     client = models.ForeignKey('Client', related_name='finances')
+    dependent = models.ForeignKey('Dependent', null=True, blank=True, related_name='finances')
 
     @classmethod
-    def create(cls, amount, name, category, client):
+    def create(cls, amount, category, client, dependent=None):
         return cls(
             amount=int(amount),
-            name=name.strip(),
             category=category,
-            client=client
+            client=client,
+            dependent=dependent
         )
 
 

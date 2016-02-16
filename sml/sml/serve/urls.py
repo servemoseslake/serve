@@ -33,6 +33,9 @@ urlpatterns = [
     url(r'client/(?P<client_id>\d+)/reference/(?P<reference_id>\d+)/delete$', 'sml.serve.views.delete_reference', name='delete_reference'),
     url(r'client/(?P<client_id>\d+)/reference/add$', 'sml.serve.views.add_reference', name='add_reference'),
 
+    url(r'client/(?P<client_id>\d+)/finances/add$', 'sml.serve.views.add_finance', name='add_finance'),
+    url(r'client/(?P<client_id>\d+)/finances/(?P<finance_id>\d+)/delete', 'sml.serve.views.delete_finance', name='delete_finance'),
+
     url(r'client/(?P<client_id>\d+)/conviction/add$', 'sml.serve.views.add_conviction', name='add_conviction'),
 
     url(r'client/(?P<client_id>\d+)/assignment/add$', 'sml.serve.views.add_assignment', name='add_assignment'),
@@ -44,8 +47,6 @@ urlpatterns = [
     url(r'client/(?P<client_id>\d+)/employment/save$', 'sml.serve.views.save_employment', name='save_employment'),
 
     url(r'client/(?P<client_id>\d+)/comment/add$', 'sml.serve.views.add_comment', name='add_comment'),
-    url(r'client/(?P<client_id>\d+)/finances/save$', 'sml.serve.views.save_finances', name='save_finances'),
-
     url(r'client/(?P<client_id>\d+)/document/add$', 'sml.serve.views.add_document', name='add_document'),
 
     url(r'^$', 'sml.serve.views.index', name='index'),

@@ -87,7 +87,7 @@ class CommentCategoryAdmin (admin.ModelAdmin):
 
 @admin.register(FinanceCategory)
 class FinanceCategoryAdmin (admin.ModelAdmin):
-    pass
+    list_display = ('name', 'get_type_display')
 
 
 @admin.register(AssignmentCategory)
@@ -183,7 +183,7 @@ class CommentAdmin (admin.ModelAdmin, ClientNameMixin):
 
 @admin.register(Finance)
 class FinanceAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'category', 'amount', 'name')
+    list_display = ('client_name', 'category', 'amount')
     search_fields = ['client__last_name', 'client__first_name']
 
 

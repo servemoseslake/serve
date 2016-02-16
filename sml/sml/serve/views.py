@@ -472,7 +472,8 @@ def view_client(request, client_id):
         'church_connection_choices': Connection.objects.all().order_by('name'),
         'comment_category_choices': CommentCategory.objects.all().order_by('name'),
         'assistance_category_choices': AssistanceCategory.objects.all().order_by('name'),
-        'assignment_category_choices': AssignmentCategory.objects.all().order_by('name')
+        'assignment_category_choices': AssignmentCategory.objects.all().order_by('name'),
+        'finance_categories': FinanceCategory.objects.all().order_by('name')
     })
 
     context.update({
@@ -654,6 +655,34 @@ def save_homeless(request, client_id):
                 client=client
             ).save()
 
+    return redirect('view_client', client_id=client_id)
+
+
+@login_required
+def add_finance(request, client_id):
+
+    if request.method == 'POST':
+        try:
+            category = form_field(request, 'category', 'Income Category')
+            amount = int(form_field(request, 'amount', 'Income Amount'))
+            person = int(form_field(request, 'person', 'Income Earner / Person'))
+        except MissingDataError as error:
+            form_error(request, error.message)
+            return redirect('view_client', client_id=client_id)
+
+        category = FinanceCategory.objects.get(pk=category)
+        client = Client.objects.get(pk=client_id)
+        person = None if person is 0 else Dependent.objects.get(pk=person)
+
+        Finance.create(amount, category, client, person).save()
+
+    return redirect('view_client', client_id=client_id) 
+
+
+@login_required
+def delete_finance(request, client_id, finance_id):
+
+    Finance.objects.filter(pk=finance_id).delete()
     return redirect('view_client', client_id=client_id)
 
 
@@ -953,30 +982,6 @@ def add_comment(request, client_id):
             client=client
         ).save()
 
-
-    return redirect('view_client', client_id=client_id)
-
-
-@login_required
-def save_finances(request, client_id):
-
-    if request.method == 'POST':
-        queryset = Client.objects.filter(pk=client_id)
-        client = queryset[0] if queryset else None
-
-        body = request.body.decode()
-        payload = json.loads(body) 
-
-        if 'income' in payload and 'expenses' in payload:
-            Finance.objects.filter(client=client).delete()
-            
-            income = FinanceCategory.objects.get(name='Income')
-            expense = FinanceCategory.objects.get(name='Expense')
-
-            for name, amount in payload.get('income', {}).items():
-                Finance.create(amount, name, income, client).save()
-            for name, amount in payload.get('expenses', {}).items():
-                Finance.create(amount, name, expense, client).save()                
 
     return redirect('view_client', client_id=client_id)
 

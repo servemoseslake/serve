@@ -126,5 +126,29 @@
       </div>
     </div>
 
+<script>
+
+  $(function() {
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+      sessionStorage.setItem('working-tab', e.target.hash);
+      sessionStorage.setItem('working-client', e.target.pathname);
+    });
+  });
+
+  $(function() {
+    $(document).ready(function() {
+      var last = sessionStorage.getItem('working-client');
+      var current = this.location.pathname;
+
+      if (last != current) {
+          return;
+      }
+
+      var last = sessionStorage.getItem('working-tab');
+      $('.nav-tabs a[href="' + last + '"]').tab('show');
+    });
+  });
+
+</script>
 
 {% endblock %}
