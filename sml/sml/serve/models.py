@@ -294,7 +294,7 @@ class Termination (models.Model):
 
     class Meta:
         verbose_name = 'Termination Category'
-        verbose_name = 'Termination Categories'
+        verbose_name_plural = 'Termination Categories'
 
     def __str__(self):
         return self.name
@@ -410,18 +410,31 @@ class Connection (models.Model):
 
 
 class Church (models.Model):
-    name = models.CharField(max_length=64)
-    attendence = models.ForeignKey('Frequency', related_name='church_frequencies')
-    connection = models.ForeignKey('Connection', related_name='church_connections')
-    client = models.ForeignKey('Client', related_name='churches')
+    name = models.CharField(max_length=128, unique=True)
+    contact = models.CharField(max_length=64)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=11)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
-       verbose_name_plural = 'Churches'
+        verbose_name_plural = 'Churches'
+
+
+class ChurchAttendence (models.Model):
+    church = models.ForeignKey('Church', related_name='attendees')
+    attendence = models.ForeignKey('Frequency', related_name='church_attendence')
+    connection = models.ForeignKey('Connection', related_name='church_connections')
+    client = models.ForeignKey('Client', related_name='church_attendence')
+
+    class Meta:
+       verbose_name_plural = 'Church Attendence'
 
     @classmethod
-    def create(cls, name, attendence, connection, client):
+    def create(cls, church, attendence, connection, client):
         return cls(
-            name=name.strip().title(),
+            church=church,
             attendence=attendence,
             connection=connection,
             client=client
@@ -606,4 +619,5 @@ class Document (models.Model):
             payload=payload,
             client=client
         )
+
 

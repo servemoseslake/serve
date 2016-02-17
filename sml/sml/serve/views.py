@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate
 
 from .models import Appointment, Client, Phone, Address, Dependent, Homeless, \
     Employment, Reference, Conviction, Comment, Church, Finance, Assignment, \
-    Assistance, Document
+    Assistance, Document, ChurchAttendence
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
     DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
@@ -469,6 +469,7 @@ def view_client(request, client_id):
         'employment_reasons': Termination.objects.all().order_by('name'),
         'reference_choices': ReferenceCategory.objects.all().order_by('name'),
         'conviction_choices': ConvictionCategory.objects.all().order_by('name'),
+        'churches': Church.objects.all().order_by('name'),
         'church_connection_choices': Connection.objects.all().order_by('name'),
         'comment_category_choices': CommentCategory.objects.all().order_by('name'),
         'assistance_category_choices': AssistanceCategory.objects.all().order_by('name'),
@@ -477,8 +478,7 @@ def view_client(request, client_id):
     })
 
     context.update({
-        'appointments_upcoming': Appointment.objects.filter(client=client).filter(start__gte=now),
-        'appointments_past': Appointment.objects.filter(client=client).filter(start__lt=now),
+        'appointments': Appointment.objects.filter(client=client),
     })
 
     if has_form_error(request):
@@ -727,7 +727,7 @@ def save_church(request, client_id):
 
     if request.method == 'POST':
         try:
-            name = form_field(request, 'church_name', 'Church Name')
+            church = form_field(request, 'church', 'Church Name')
             attendence = form_field(request, 'church_attendence', 'Church Attendence')
             connection = form_field(request, 'church_connection', 'Church Connection')
         except MissingDataError as error:
@@ -737,11 +737,12 @@ def save_church(request, client_id):
         queryset = Client.objects.filter(pk=client_id)
         client = queryset[0] if queryset else None
 
+        church = Church.objects.get(pk=church)
         attendence = Frequency.objects.get(pk=attendence)
         connection = Connection.objects.get(pk=connection)
 
-        Church.objects.filter(client=client).delete()
-        Church.create(name, attendence, connection, client).save()
+        ChurchAttendence.objects.filter(client=client).delete()
+        ChurchAttendence.create(church, attendence, connection, client).save()
 
     return redirect('view_client', client_id=client_id)
 

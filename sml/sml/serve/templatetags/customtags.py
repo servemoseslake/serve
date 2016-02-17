@@ -1,6 +1,7 @@
 
 from functools import reduce
 from django import template
+from datetime import datetime, timedelta
 
 register = template.Library()
 
@@ -73,4 +74,10 @@ def flatten(first, second):
 @register.assignment_tag
 def query(qs, **kwargs):
     return qs.filter(**kwargs)
+
+@register.filter(name='appointment_expired')
+def appointment_expired(appointment, minutes=60, now=None):
+    now = now if now else datetime.now()
+    delta = appointment.start + timedelta(minutes=minutes)
+    return delta <= now
 

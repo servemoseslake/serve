@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import Appointment, Client, Phone, Address, \
   Dependent, Homeless, Employment, Reference, Conviction, Church, \
-  Comment, Finance, Referral, Assistance, Assignment, Document
+  Comment, Finance, Referral, Assistance, Assignment, Document, ChurchAttendence
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
   DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
@@ -169,10 +169,17 @@ class ConvictionAdmin (admin.ModelAdmin, ClientNameMixin):
     search_fields = ['client__last_name', 'client__first_name']
 
 
-@admin.register(Church)
-class ChurchAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'name', 'attendence', 'connection')
+@admin.register(ChurchAttendence)
+class ChurchAttendenceAdmin (admin.ModelAdmin, ClientNameMixin):
+    list_display = ('client_name', 'church', 'attendence', 'connection')
     search_fields = ['client__last_name', 'client__first_name']
+
+    def church(self, obj):
+        return obj.church.name
+
+@admin.register(Church)
+class ChurchAdmin (admin.ModelAdmin):
+    list_display = ('name', 'contact', 'email', 'phone')
 
 
 @admin.register(Comment)

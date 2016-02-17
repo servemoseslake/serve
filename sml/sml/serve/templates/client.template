@@ -26,7 +26,7 @@
                 <li><a href="#assistance" data-toggle="tab">Assistance ({{ client.assistance.all.count }}) </a></li>
                 <li><a href="#assignments" data-toggle="tab">Assignments ({{ client.assignments.all|filter_false:"completed"|filter_false:"abandoned"|length }}) </a></li>
                 <li><a href="#convictions" data-toggle="tab">Convictions ({{ client.convictions.all.count }}) </a></li>
-                <li><a href="#church" data-toggle="tab">Church ({{ client.churches.all.count }}) </a></li>
+                <li><a href="#church" data-toggle="tab">Church ({{ client.church_attendence.all.count }}) </a></li>
                 <li><a href="#visits" data-toggle="tab">Visits ({{ client.appointments.all.count }}) </a></li>
                 <li><a href="#documents" data-toggle="tab">Documents ({{ client.documents.all.count }}) </a></li>
               </ul>
