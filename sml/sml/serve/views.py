@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate
 
 from .models import Appointment, Client, Phone, Address, Dependent, Homeless, \
     Employment, Reference, Conviction, Comment, Church, Finance, Assignment, \
-    Assistance, Document, ChurchAttendence
+    Assistance, Document, ChurchAttendence, IntentToAssist
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
     DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
@@ -96,8 +96,12 @@ def index(request):
     cutoff = today - timedelta(days=30)
 
     appointments = Appointment.objects.filter(start__contains=today).order_by('start')
+
     assignments = Assignment.objects.filter(due__contains=today, completed=False)
     assignments_late = Assignment.objects.filter(due__range=(cutoff, yesterday), completed=False).order_by('-due')
+
+    intentions_pending = IntentToAssist.objects.filter(submitted=None,completed=None).order_by('-created')
+    intentions_submitted = IntentToAssist.objects.filter(submitted__isnull=False,completed=None).order_by('-created')
 
     clients = Client.objects.count()
 
@@ -105,6 +109,8 @@ def index(request):
        'appointments': appointments,
        'assignments_today': assignments,
        'assignments_late': assignments_late,
+       'intentions_pending': intentions_pending,
+       'intentions_submitted': intentions_submitted,
        'client_count': clients,
     })
 
@@ -132,7 +138,7 @@ def appointment(request, appointment_id):
             'prior': prior,
         })
   
-    return render_to_response('select-appointment.template', context)
+    return render_to_response('pages/select-appointment.template', context)
 
 
 @login_required
@@ -231,7 +237,7 @@ def new_appointment(request):
         client = Client.objects.get(pk=client)
         context['client'] = client
     
-    return render_to_response('schedule-appointment.template', context)
+    return render_to_response('pages/schedule-appointment.template', context)
 
 
 @login_required
@@ -942,6 +948,18 @@ def save_assistance(request, client_id, assistance_id):
             assistance.rejected = True
             assistance.assignment = None
             assistance.save()
+        elif 'intent' in request.POST:
+            assistance.issued = datetime.today()
+            assistance.blocked = False
+            assistance.rejected = False
+            assistance.assignment = None
+            assistance.save()
+
+            intent = IntentToAssist()
+            intent.assistance = assistance
+            intent.amount = assistance.value
+            intent.notes = assistance.details
+            intent.save()
         elif 'assign' in request.POST:
             try:
                 assignment = form_field(request, 'assistance_assignment', '', required=False)
@@ -954,6 +972,56 @@ def save_assistance(request, client_id, assistance_id):
             assistance.save()
 
     return redirect('view_client', client_id=client_id)
+
+
+@login_required
+def view_intent(request, client_id, intent_id):
+
+    context = standard_context(request)
+    intent = IntentToAssist.objects.get(pk=intent_id)
+    context.update({
+        'intent': intent,
+        'churches': Church.objects.all().order_by('name'),
+    })
+
+    return render_to_response('pages/intent.template', context)
+
+
+@login_required
+def generate_intent_form(request, intent_id):
+
+    if request.method == 'POST':
+        intent = IntentToAssist.objects.get(pk=intent_id)
+
+        try:
+            church = form_field(request, 'church', '')
+            amount = int(form_field(request, 'amount', ''))
+            notes = form_field(request, 'notes', '', required=False)
+            payee = form_field(request, 'payee', '')
+            payee_phone = form_field(request, 'payee_phone', '')
+            payee_address = form_field(request, 'payee_address', '', required=False)
+            payee_memo = form_field(request, 'payee_memo', '', required=False)
+        except MissingDataError as error:
+            form_error(request, error.message)
+            return redirect('view_intent', client_id=intent.assistance.client.pk, intent_id=intent_id)
+
+        intent.church = Church.objects.get(pk=church)
+        intent.amount = amount
+        intent.notes = notes
+        intent.payee = payee
+        intent.payee_phone = payee_phone
+        intent.payee_address = payee_address
+        intent.payee_memo = payee_memo
+        intent.submitted = datetime.today()
+        intent.save()
+
+        context = standard_context(request)
+
+        context.update({
+            'intent': intent,
+        })
+
+        return render_to_response('forms/intent-form.html', context)
 
 
 @login_required

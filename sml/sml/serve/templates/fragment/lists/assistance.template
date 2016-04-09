@@ -23,12 +23,13 @@
       <tr>
         <td> {{ request.category }} </td>
         <td> {{ request.when|date:"m/d/Y" }} </td>
-        <td> {{ request.value }} </td>
+        <td> ${{ request.value }}.00 </td>
         <td> {{ request.assisted_by.first_name }} </td>
         <td> {% if request.assignment %} {{ request.assignment.category }} {% else %} N/A {% endif %}
         <td> <span data-toggle="tooltip" data-placement="right" title="{{ request.details }}"> {{ request.details|truncatechars:32 }} </span> </td>
         <td> 
           <form method="POST" action="{% url 'save_assistance' client_id=client.pk assistance_id=request.pk %}">
+            <input type="submit" name="intent" class="button btn-primary" value="intent"/>
             <input type="submit" name="issue" class="button btn-success" value="issue"/>
             <input type="submit" name="block" class="button btn-warning" value="block"/>
             <input type="submit" name="reject" class="button btn-danger" value="reject"/>
@@ -77,7 +78,7 @@
             {% else %}
               <select name="assistance_assignment">
                 <option value="NONE"> N/A </option>
-                {% with client.assignments.all|filter_false:"completed" as assignments %}
+                {% with client.assignments.all|filter_false:"completed"|filter_false:"abandoned" as assignments %}
                 {% for assignment in assignments %}
                 <option value="{{ assignment.pk }}"> {{ assignment.category }} </option>
                 {% endfor %}
@@ -116,6 +117,7 @@
         <td>Value</td>
         <td>By</td>
         <td>Assignment</td>
+        <td>Intent #</td>
         <td>Details</td>
       </tr>
     </thead>
@@ -133,6 +135,7 @@
         <td> {{ request.value }} </td>
         <td> {{ request.assisted_by.first_name }} </td>
         <td> {% if request.assignment %} {{ request.assignment.category }} {% else %} N/A {% endif %}
+        <td> {{ request.intentions.all.0.pk|default:"n/a" }}
         <td> <span data-toggle="tooltip" data-placement="right" title="{{ request.details }}"> {{ request.details|truncatechars:32 }} </span> </td>
       </tr>
       {% empty %}

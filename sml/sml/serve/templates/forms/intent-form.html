@@ -1,0 +1,177 @@
+
+{% with intent.assistance as assistance %}
+{% with intent.church as church %}
+{% with assistance.client as client %}
+
+<!doctype html>
+<html>
+
+<head>
+    <title> Serve Moses Lake - "Intent to Assist"  </title>
+</head>
+
+<body>
+<div>
+
+  <div class="header">
+    <h2><center> Serve Moses Lake - "Intent To Assist" </center></h2>
+    <p><center><strong> Ph: 764-8276 / Fax: 764-8277 / Email: tim@servemoseslake.org </strong></center></p>
+  </div>
+
+  <div class="section"><hr/></div>
+
+  <div class="section">
+    <div>
+      <div class="row half"><p><strong> TO: </strong><u> {{ church.name }} </u></p></div>
+      <div class="row half"><p><strong> Email/Fax: </strong><u> {{ church.email }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"><hr/></div>
+
+  <div class="section">
+    <div>
+      <div class="row half"><p><strong> CLIENT Information: </strong></p></div>
+      <div class="row half"><p><strong> Today's Date: </strong><u> {{ intent.submitted|date:"F j Y" }} </u></p></div>
+
+      <div class="row full"><p> Client Name: <u> {{ client.full_name }} </u></p></div>
+
+      <div class="row half"><p> Client Address: <u> {{ client.addresses.all.0 }} </u></p></div>
+      <div class="row half"><p> Neighborhood Area: ________________________________________ </p></div>
+
+      <div class="row half"><p> Client Phone: <u> {{ client.phones.all.0 }} </u></p></div>
+      <div class="row half"><p> Client Birthdate: <u> {{ client.birthdate }} </u></p></div>
+
+      <div class="row half"><p> Family / Other Info: <u> {{ client.dependents.all.count }} dependents </u></p></div>
+      <div class="row half"><p> Church Connection? <u> {{ client.church.name|default:"None" }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"><hr/></div>
+
+  <div class="section section-box">
+    <div>
+      <div class="row half"><p><strong> Need/Purpose: </strong><u> {{ assistance.category }} </u></p></div>
+      <div class="row half"><p><strong> Amount: </strong><u> ${{ intent.amount }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"></div>
+
+  <div class="section section-box section-margin">
+    <div>
+      <div class="row half"><p><strong> Payable to: </strong><u> {{ intent.payee }} </u></p></div>
+      <div class="row half"><p><strong> Phone #: </strong><u> {{ intent.payee_contact }} </u></p></div>
+      <div class="row full"><p><strong> Address: </strong><u> {{ intent.payee_address }} </u></p></div>
+      <div class="row full"><p><strong> Memo: </strong><u> {{ intent.payee_memo }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"></div>
+
+  <div class="section">
+    <div>
+      <div class="row full"><p><u> Other info / Circumstances / Verification </u></p></div>
+      <div class="row full">
+        <ul>
+          <li><strong> CIRCUMSTANCES: </strong><u> {{ assistance.details }} </u></li>
+          <li><strong> Client's Responsiblity / Plan: </strong><u> {{ assistance.assignment.category.name|default:"N/A" }} </u></li>
+        <ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section"></div>
+
+  <div class="section">
+    <div>
+      <div class="row full"><p><strong> To be paid by (date): </strong> ____________________ </p></div>
+      <div class="row full"><p> Addt'l Notes: <u> {{ intent.notes|default:"" }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"><hr/></div>
+
+  <div class="section">
+    <div>
+      <div class="row full"><p><strong> Serve Moses Lake Expectations / Next Steps: </strong></p></div>
+      <div class="row full">
+        <ol>
+          <li> SML Volunteer contacts Church to provide need as stated above. </li>
+          <li> SML client agrees to meet with Church leader to receive needed resource(s).
+          <li> Church leader spends time with SML client to offer encouragement, information, prayer, etc.
+          <li> SML client <strong> is not </strong> required to commit to any Church in order to receive nedded resource(s).
+          <li> If acceptable to SML client, Church is welcome to offer follow-up services or relational opportunities.
+        </ol>
+      </div>
+      <div class="row full"><p><strong> Serve ML Director: </strong><u> {{ user.get_full_name }} </u></p></div>
+      <div class="row full"><p><strong> Serve ML Client: </strong><u> {{ client.full_name }} </u></p></div>
+    </div>
+  </div>
+
+  <div class="section"><hr/></div>
+
+  <div class="section">
+    <div class="row full"></p><strong> Upon completion, please fax/email this document back to SERVE ML for our records </strong></p></div>
+  </div>
+
+  <div class="section"></div>
+
+  <div class="section">
+    <div>
+      <div class="row third"><p> Church: <u> {{ church.name }} </u></p></div>
+      <div class="row third"><p> Date approved: <u> ____________________ </u></p></div>
+      <div class="row third"><p> Church Appt (Date/Time): <u> ____________________/__________ </u></p></div>
+   
+      <div class="row full"><p> Church Leader Signature: ________________________________________ </p></div>
+      <div class="row full"><p> Alternate "Follow Up" designee: ________________________________________ </p></div>
+      <div class="row full"><p> Comments: ________________________________________ </p></div>
+    </div>
+  </div>
+
+</div>
+</body>
+
+<style>
+
+.body {
+  width: 1024px;
+  height: 786px;
+}
+
+.section {
+  width: 95%;
+  float: left;
+  padding: 4px;
+}
+
+.section-box {
+  border: 2px solid;
+}
+
+.section-margin {
+  margin-left: 20px;
+}
+
+.row {
+  float: left;
+}
+
+.full {
+  width: 100%;
+}
+
+.half {
+  width: 50%;
+}
+
+.third {
+  width: 33%;
+}
+
+</style>
+</html>
+
+{% endwith %}
+{% endwith %}
+{% endwith %}

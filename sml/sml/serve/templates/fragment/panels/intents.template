@@ -1,0 +1,75 @@
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+      <div class="panel-heading"> Intent To Assist </div>
+      <div class="panel-body">
+ 
+     <ul class="nav nav-tabs">
+       <li class="active"><a href="#pending" data-toggle="tab"> Pending ({{ intentions_pending.count }}) </a></li>
+       <li><a href="#submitted" data-toggle="tab"> Submitted ({{ intentions_submitted.count }}) </a></li>
+     </ul>
+
+     <div class="tab-content">
+       <div class="tab-pane active" id="pending">
+         <div class="container col-sm-12">
+           <table class="table table-hover"> 
+             <thead>
+               <tr>
+                 <td> Created </td>
+                 <td> Client </td>
+                 <td> Request </td>
+                 <td> Amount </td>
+               </tr>
+             </thead>
+             <tbody>
+               {% for intent in intentions_pending %}
+               <tr id="intent_pending_{{ intent.pk }}"> 
+                 <td> {{ intent.created }} </td>
+                 <td> {{ intent.assistance.client.full_name }} </td>
+                 <td><a href="{% url 'view_intent' client_id=intent.assistance.client.pk intent_id=intent.pk %}"> {{ intent.assistance.category.name }} </a> </td>
+                 <td> ${{ intent.assistance.value }} </td>
+               </tr>
+               {% empty %}
+               <tr><td colspan="4"> No Assistance Intents Pending </td></tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+       </div>
+
+       <div class="tab-pane" id="submitted">
+         <div class="container col-sm-12">
+           <table class="table table-hover"> 
+             <thead>
+               <tr>
+                 <td> Submitted </td>
+                 <td> Client </td>
+                 <td> Request </td>
+                 <td> Amount </td>
+                 <td> Church </td>
+               </tr>
+             </thead>
+             <tbody>
+               {% for intent in intentions_submitted %}
+               <tr id="intent_pending_{{ intent.pk }}">
+                 <td> {{ intent.submitted }} </td>
+                 <td> {{ intent.assistance.client.full_name }} </td>
+                 <td><a href="{% url 'view_intent' client_id=intent.assistance.client.pk intent_id=intent.pk %}"> {{ intent.assistance.category.name }} </a> </td>
+                 <td> ${{ intent.assistance.value }} </td>
+                 <td> {{ intent.church.name }} </td>
+               </tr>
+               {% empty %}
+               <tr><td colspan="5"> No Assistance Intents Pending </td></tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+       </div>
+      </div>
+    </div>
+  </div>
+</div>
+

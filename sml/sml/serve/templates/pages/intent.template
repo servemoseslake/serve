@@ -1,0 +1,28 @@
+
+{% extends "base/body.template" %}
+
+{% block navbar %}
+{% include "navbar/standard.template" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading"> Intent to Assist: {{ intent.assistance.client.full_name }} </div>
+        <div class="panel-body"> 
+        {% include "fragment/forms/intent.template" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+{% endblock %}
+

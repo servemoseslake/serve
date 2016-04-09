@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'client/(?P<client_id>\d+)$', 'sml.serve.views.view_client', name='view_client'),
 
     url(r'client/comment$', 'sml.serve.views.get_comment', name='get_comment'),
+    url(r'client/(?P<client_id>\d+)/intent/(?P<intent_id>\d+)$', 'sml.serve.views.view_intent', name='view_intent'),
+    url(r'intent/(?P<intent_id>\d+)/form$', 'sml.serve.views.generate_intent_form', name='generate_intent_form'),
 
     url(r'client/(?P<client_id>\d+)/phone/(?P<phone_id>\d+)/delete$', 'sml.serve.views.delete_phone', name='delete_phone'),    
     url(r'client/(?P<client_id>\d+)/phone/add$', 'sml.serve.views.add_phone', name='add_phone'),    

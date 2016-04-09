@@ -1,0 +1,98 @@
+
+{% with intent.assistance as assistance %}
+{% with assistance.client as client %}
+
+<div>
+  <form class="form-horizontal" method="POST" action="{% url 'generate_intent_form' intent_id=intent.pk %}">
+
+    <div class="form-group">
+      <label for="reference" class="control-label col-sm-2"> Reference # </label>
+      <div class="col-sm-2">
+        <input type="text" class="form-control" name="reference" value="{{ intent.pk }}" readonly />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="client" class="control-label col-sm-2"> Client </label>
+      <div class="col-sm-2">
+        <a href="{% url 'view_client' client_id=client.pk %}"> {{ client.full_name }} </a>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="created" class="control-label col-sm-2"> Created </label>
+      <div class="col-sm-2">
+        <input type="datetime" class="form-control" name="created" value="{{ intent.created }}" readonly />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="assistance" class="control-label col-sm-2"> Assistance </label>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="assistance" value="{{ assistance.category.name }}" readonly/>
+      </div>
+    </div>    
+
+    <div class="form-group">
+      <label for="church" class="control-label col-sm-2"> Church </label>
+      <div class="col-sm-3">
+        <select class="form-control" name="church">
+          {% for church in churches %}
+          <option value="{{ church.pk }}"> {{ church.name }} </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="amount" class="control-label col-sm-2"> Amount </label>
+      <div class="col-sm-2">
+        <input type="number" class="form-control" name="amount" value="{{ intent.amount }}"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="notes" class="control-label col-sm-2"> Notes </label>
+      <div class="col-sm-6">
+        <textarea name="notes" class="form-control" rows="10" placeholder="{{ intent.notes }}"> </textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="payee" class="control-label col-sm-2"> Payee </label>
+      <div class="col-sm-6">
+        <input type="text" class="form-control" name="payee" value="{{ intent.payee }}"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="payee_address" class="control-label col-sm-2"> Payee Address </label>
+      <div class="col-sm-6">
+        <input type="text" class="form-control" name="payee_address" value="{{ intent.payee_address|default:"" }}"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="payee_phone" class="control-label col-sm-2"> Payee Phone </label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="payee_phone" value="{{ intent.payee_phone|default:"" }}"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="payee_memo" class="control-label col-sm-2"> Payee Memo </label>
+      <div class="col-sm-6">
+        <textarea name="payee_memo" class="form-control" rows="10" placeholder=""> </textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-2 col-sm-offset-2">
+        <button id="submit_intent_button" type="submit" class="btn btn-success"> Create and Submit Intent to Assist Form</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endwith %}
+{% endwith %}

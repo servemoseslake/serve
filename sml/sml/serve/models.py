@@ -1,4 +1,5 @@
 import re
+from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta, date
@@ -137,6 +138,9 @@ class Phone (models.Model):
     class Meta:
         unique_together = ('number', 'client')
 
+    def __str__(self):
+        return '({}) {}-{}'.format(self.number[0:3], self.number[3:6], self.number[6:])
+
     def save(self, *args, **kwargs):
         self.number = re.sub(r'\D', '', self.number)
         return super(Phone, self).save(*args, **kwargs)
@@ -172,6 +176,9 @@ class Address (models.Model):
 
     def duration(self):
         return self.moved_out - self.moved_in
+
+    def __str__(self):
+        return '{} {}, {}, {} {}'.format(self.street, self.street_number, self.city, self.state, self.zip)
 
     @classmethod
     def create(cls, street, number, city, state, zip, moved, client):
@@ -577,6 +584,9 @@ class Assistance (models.Model):
     assignment = models.ForeignKey('Assignment', null=True, blank=True, related_name='assistance')
     referral = models.ForeignKey('Referral', null=True, blank=True, related_name='assistance')
 
+    def __str__(self):
+        return '{} - {}'.format(self.category, self.when)
+
     class Meta:
        verbose_name_plural = 'Assistance'
 
@@ -595,6 +605,27 @@ class Assistance (models.Model):
             assignment=None,
             referral=None
         )
+
+
+class IntentToAssist (models.Model):
+    church = models.ForeignKey('Church', related_name='assistance', null=True, blank=True)
+    assistance = models.ForeignKey('Assistance', related_name='intentions')
+    amount = models.IntegerField()
+    payee = models.CharField(max_length=256)
+    payee_address = models.CharField(max_length=256)
+    payee_phone = models.CharField(max_length=10, blank=True, null=True)
+    payee_memo = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    created = models.DateField(default=date.today)
+    submitted = models.DateField(null=True,blank=True)
+    completed = models.DateField(null=True,blank=True)
+
+    def __str__(self):
+        return 'Intented: {}'.format(self.assistance)
+
+    class Meta:
+        verbose_name_plural = 'Intents To Assist'
+        verbose_name = 'Intent To Assist'
 
 
 def document_path(instance, filename):

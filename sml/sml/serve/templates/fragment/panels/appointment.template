@@ -26,7 +26,7 @@
                 {% with apt.client as client %}
                 <tr>
                   <td><a href="{% url 'appointment' appointment_id=apt.pk %}"> {{ apt.start|date:"g A" }} </a></td>
-                  <td> {{ apt.last_name }}, {{ apt.first_name }} </td>
+                  <td> {{ apt.first_name }} {{ apt.last_name }} </td>
                   <td> {{ apt.age }} </td>
                   <td> {{ apt.reason }} </td>
                   <td> {{ apt.scheduled_by.first_name }} </td>

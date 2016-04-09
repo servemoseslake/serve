@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from .models import Appointment, Client, Phone, Address, \
   Dependent, Homeless, Employment, Reference, Conviction, Church, \
-  Comment, Finance, Referral, Assistance, Assignment, Document, ChurchAttendence
+  Comment, Finance, Referral, Assistance, Assignment, Document, ChurchAttendence, \
+  IntentToAssist
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
   DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
@@ -82,6 +83,11 @@ class ConnectionAdmin (admin.ModelAdmin):
 
 @admin.register(CommentCategory)
 class CommentCategoryAdmin (admin.ModelAdmin):
+    pass
+
+
+@admin.register(IntentToAssist)
+class IntentToAssistAdmin (admin.ModelAdmin):
     pass
 
 
