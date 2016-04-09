@@ -8,7 +8,9 @@
 {% block content %}
 {% include "fragment/panels/welcome.template" %}
 {% include "fragment/panels/appointment.template" %}
-{% include "fragment/panels/todo.template" %}
-{% include "fragment/panels/overdue.template" %}
+
+{% include "fragment/panels/assignments.template" %}
+{% include "fragment/panels/intents.template" %}
+
 {% endblock %}
 

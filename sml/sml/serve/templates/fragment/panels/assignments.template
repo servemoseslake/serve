@@ -1,0 +1,77 @@
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary">
+      <div class="panel-heading"> Assignments Due </div>
+      <div class="panel-body">
+ 
+     <ul class="nav nav-tabs">
+       <li class="active"><a href="#today" data-toggle="tab"> Today ({{ assignments_today.count }}) </a></li>
+       <li><a href="#past" data-toggle="tab"> Overdue ({{ assignments_late.count }}) </a></li>
+     </ul>
+
+     <div class="tab-content">
+       <div class="tab-pane active" id="today">
+         <div class="container col-sm-12">
+           <table class="table table-hover"> 
+             <thead>
+               <tr>
+                 <td>Assigned</td>
+                 <td>Due</td>
+                 <td>Client</td>
+                 <td>Category</td>
+               </tr>
+             </thead>
+             <tbody>
+               {% for assignment in assignments_today %}
+               {% with assignment.client as client %}
+               <tr>
+                 <td> {{ assignment.when }} </td>
+                 <td> {{ assignment.due }} </td>
+                 <td> <a href="{% url 'view_client' client_id=client.id %}"> {{ client.full_name }} </a></td>
+                 <td> {{ assignment.category.name }} </td>
+               </tr> 
+               {% endwith %}
+               {% empty %}
+               <tr><td colspan="4"> No Assignments Found </td></tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+       </div>
+
+       <div class="tab-pane" id="past">
+         <div class="container col-sm-12">
+           <table class="table table-hover"> 
+             <thead>
+               <tr>
+                 <td>Assigned</td>
+                 <td>Due</td>
+                 <td>Client</td>
+                 <td>Category</td>
+               </tr>
+             </thead>
+             <tbody>
+               {% for assignment in assignments_late %}
+               {% with assignment.client as client %}
+               <tr>
+                 <td> {{ assignment.when }} </td>
+                 <td> {{ assignment.due }} </td>
+                 <td> <a href="{% url 'view_client' client_id=client.id %}"> {{ client.full_name }} </a></td>
+                 <td> {{ assignment.category.name }} </td>
+               </tr> 
+               {% endwith %}
+               {% empty %}
+               <tr><td colspan="4"> No Assignments Found </td></tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+       </div>
+      </div>
+    </div>
+  </div>
+</div>
+

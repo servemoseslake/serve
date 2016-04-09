@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '61udb@5vdm_tja^cn7xkxtjh2$wmpddz@7b#k91$c!+-t9pm(@'
+SECRET_KEY = 'ABC123'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -101,10 +101,10 @@ WSGI_APPLICATION = 'sml.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'serve',
-        'USER': 'serve',
-        'PASSWORD': 'ServeMosesLake!',
-        'HOST': 'serve-micro-1.cg8sgcbdw3j2.us-west-2.rds.amazonaws.com',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
         'PORT': '5432',
         'CONN_MAX_AGE': 300,
     }

@@ -1,6 +1,7 @@
 
 from functools import reduce
 from django import template
+from datetime import datetime, timedelta
 
 register = template.Library()
 
@@ -58,11 +59,25 @@ def filter_value(iterable,pair):
     name, value = pair.split(',')
     return [i for i in iterable if getattr(i, name) == value]
 
-@register.filter(name='finances_summary')
-def finances_summary(iterable):
-    total = reduce(lambda t,c: t + c.amount if c.category.name == 'Income' else t - c.amount, iterable, 0)
-    return ('surplus', total) if total >= 0 else ('deficit', total)
+@register.filter(name='sum')
+def sum(queryset, field=None):
+    return reduce(lambda l,r: l + (r if not field else getattr(r, field)), queryset, 0)
+
+@register.filter(name='sub')
+def sub(first, second):
+    return first - second
 
 @register.filter(name='flatten')
 def flatten(first, second):
     return [item for sublist in [first, second] for item in sublist]
+
+@register.assignment_tag
+def query(qs, **kwargs):
+    return qs.filter(**kwargs)
+
+@register.filter(name='appointment_expired')
+def appointment_expired(appointment, minutes=60, now=None):
+    now = now if now else datetime.now()
+    delta = appointment.start + timedelta(minutes=minutes)
+    return delta <= now
+

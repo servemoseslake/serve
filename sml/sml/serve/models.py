@@ -1,47 +1,10 @@
 import re
+from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta, date
 
-
-def date_from_string(value, format='%Y-%m-%d'):
-
-    if type(value) == date:
-        return value
-
-    return datetime.strptime(value, format).date()
-
-
-def datetime_from_string(value, format='%Y-%m-%dT%H:%M'):
-
-    alternate_formats = (
-        '%Y-%m-%dT%H:%M:%S',
-    )
-
-    all_formats = set((format,) + alternate_formats)
-
-    for fmt in all_formats:
-        try:
-            return datetime.strptime(value, fmt)
-        except ValueError:
-            pass
-
-    raise ValueError
-
-
-def date_to_age(value, now=None):
-
-    now = now if now else datetime.now()
-
-    if value > now.date().replace(year = value.year):
-        return now.date().year - value.year - 1
-    else:
-        return now.date().year - value.year
-
-
-def datetime_round(value):
-
-    return datetime(value.year, value.month, value.day, value.hour, tzinfo=value.tzinfo)
+from .utils import date_from_string, datetime_from_string, date_to_age, datetime_round
 
 
 class AppointmentReasonCategory (models.Model):
@@ -175,6 +138,9 @@ class Phone (models.Model):
     class Meta:
         unique_together = ('number', 'client')
 
+    def __str__(self):
+        return '({}) {}-{}'.format(self.number[0:3], self.number[3:6], self.number[6:])
+
     def save(self, *args, **kwargs):
         self.number = re.sub(r'\D', '', self.number)
         return super(Phone, self).save(*args, **kwargs)
@@ -210,6 +176,9 @@ class Address (models.Model):
 
     def duration(self):
         return self.moved_out - self.moved_in
+
+    def __str__(self):
+        return '{} {}, {}, {} {}'.format(self.street, self.street_number, self.city, self.state, self.zip)
 
     @classmethod
     def create(cls, street, number, city, state, zip, moved, client):
@@ -299,7 +268,8 @@ class DependentRelation (models.Model):
 
 
 class Dependent (models.Model):
-    name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    first_name = models.CharField(max_length=64)
     birthdate = models.DateField()
     relation = models.ForeignKey('DependentRelation', related_name='dependents')
     client = models.ForeignKey('Client', related_name='dependents')
@@ -308,10 +278,18 @@ class Dependent (models.Model):
     def age(self):
         return date_to_age(self.birthdate)
 
+    @property
+    def full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    def __str__(self):
+        return self.full_name
+
     @classmethod
-    def create(cls, name, birthdate, relation, client):
+    def create(cls, last_name, first_name, birthdate, relation, client):
         return cls(
-            name=name.strip().title(),
+            last_name=last_name.strip().title(),
+            first_name=first_name.strip().title(),
             birthdate=date_from_string(birthdate),
             relation=relation,
             client=client
@@ -323,7 +301,7 @@ class Termination (models.Model):
 
     class Meta:
         verbose_name = 'Termination Category'
-        verbose_name = 'Termination Categories'
+        verbose_name_plural = 'Termination Categories'
 
     def __str__(self):
         return self.name
@@ -439,18 +417,31 @@ class Connection (models.Model):
 
 
 class Church (models.Model):
-    name = models.CharField(max_length=64)
-    attendence = models.ForeignKey('Frequency', related_name='church_frequencies')
-    connection = models.ForeignKey('Connection', related_name='church_connections')
-    client = models.ForeignKey('Client', related_name='churches')
+    name = models.CharField(max_length=128, unique=True)
+    contact = models.CharField(max_length=64)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=11)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
-       verbose_name_plural = 'Churches'
+        verbose_name_plural = 'Churches'
+
+
+class ChurchAttendence (models.Model):
+    church = models.ForeignKey('Church', related_name='attendees')
+    attendence = models.ForeignKey('Frequency', related_name='church_attendence')
+    connection = models.ForeignKey('Connection', related_name='church_connections')
+    client = models.ForeignKey('Client', related_name='church_attendence')
+
+    class Meta:
+       verbose_name_plural = 'Church Attendence'
 
     @classmethod
-    def create(cls, name, attendence, connection, client):
+    def create(cls, church, attendence, connection, client):
         return cls(
-            name=name.strip().title(),
+            church=church,
             attendence=attendence,
             connection=connection,
             client=client
@@ -488,6 +479,7 @@ class Comment (models.Model):
 
 class FinanceCategory (models.Model):
     name = models.CharField(max_length=128)
+    type = models.IntegerField(choices=((0, 'Income'), (1, 'Expense')))
 
     class Meta:
         verbose_name = 'Finance Category'
@@ -499,17 +491,17 @@ class FinanceCategory (models.Model):
 
 class Finance (models.Model):
     amount = models.IntegerField()
-    name = models.CharField(max_length=64)
     category = models.ForeignKey('FinanceCategory', related_name='finances')
     client = models.ForeignKey('Client', related_name='finances')
+    dependent = models.ForeignKey('Dependent', null=True, blank=True, related_name='finances')
 
     @classmethod
-    def create(cls, amount, name, category, client):
+    def create(cls, amount, category, client, dependent=None):
         return cls(
             amount=int(amount),
-            name=name.strip(),
             category=category,
-            client=client
+            client=client,
+            dependent=dependent
         )
 
 
@@ -592,6 +584,9 @@ class Assistance (models.Model):
     assignment = models.ForeignKey('Assignment', null=True, blank=True, related_name='assistance')
     referral = models.ForeignKey('Referral', null=True, blank=True, related_name='assistance')
 
+    def __str__(self):
+        return '{} - {}'.format(self.category, self.when)
+
     class Meta:
        verbose_name_plural = 'Assistance'
 
@@ -611,6 +606,26 @@ class Assistance (models.Model):
             referral=None
         )
 
+
+class IntentToAssist (models.Model):
+    church = models.ForeignKey('Church', related_name='assistance', null=True, blank=True)
+    assistance = models.ForeignKey('Assistance', related_name='intentions')
+    amount = models.IntegerField()
+    payee = models.CharField(max_length=256)
+    payee_address = models.CharField(max_length=256)
+    payee_phone = models.CharField(max_length=10, blank=True, null=True)
+    payee_memo = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    created = models.DateField(default=date.today)
+    submitted = models.DateField(null=True,blank=True)
+    completed = models.DateField(null=True,blank=True)
+
+    def __str__(self):
+        return 'Intented: {}'.format(self.assistance)
+
+    class Meta:
+        verbose_name_plural = 'Intents To Assist'
+        verbose_name = 'Intent To Assist'
 
 def document_path(instance, filename):
     return '/'.join(['clients', 'documents', str(instance.client.pk), filename])
@@ -634,4 +649,5 @@ class Document (models.Model):
             payload=payload,
             client=client
         )
+
 

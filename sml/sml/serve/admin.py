@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from .models import Appointment, Client, Phone, Address, \
   Dependent, Homeless, Employment, Reference, Conviction, Church, \
-  Comment, Finance, Referral, Assistance, Assignment, Document
+  Comment, Finance, Referral, Assistance, Assignment, Document, ChurchAttendence, \
+  IntentToAssist
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
   DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
@@ -85,9 +86,14 @@ class CommentCategoryAdmin (admin.ModelAdmin):
     pass
 
 
+@admin.register(IntentToAssist)
+class IntentToAssistAdmin (admin.ModelAdmin):
+    pass
+
+
 @admin.register(FinanceCategory)
 class FinanceCategoryAdmin (admin.ModelAdmin):
-    pass
+    list_display = ('name', 'get_type_display')
 
 
 @admin.register(AssignmentCategory)
@@ -144,8 +150,8 @@ class HomelessAdmin (admin.ModelAdmin, ClientNameMixin):
 
 @admin.register(Dependent)
 class DependentAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'name', 'birthdate', 'relation')
-    search_fields = ['client__last_name', 'client__first_name']
+    list_display = ('client_name', 'full_name', 'birthdate', 'relation')
+    search_fields = ['full_name', 'client__last_name', 'client__first_name']
 
 
 @admin.register(Employment)
@@ -169,10 +175,17 @@ class ConvictionAdmin (admin.ModelAdmin, ClientNameMixin):
     search_fields = ['client__last_name', 'client__first_name']
 
 
-@admin.register(Church)
-class ChurchAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'name', 'attendence', 'connection')
+@admin.register(ChurchAttendence)
+class ChurchAttendenceAdmin (admin.ModelAdmin, ClientNameMixin):
+    list_display = ('client_name', 'church', 'attendence', 'connection')
     search_fields = ['client__last_name', 'client__first_name']
+
+    def church(self, obj):
+        return obj.church.name
+
+@admin.register(Church)
+class ChurchAdmin (admin.ModelAdmin):
+    list_display = ('name', 'contact', 'email', 'phone')
 
 
 @admin.register(Comment)
@@ -183,7 +196,7 @@ class CommentAdmin (admin.ModelAdmin, ClientNameMixin):
 
 @admin.register(Finance)
 class FinanceAdmin (admin.ModelAdmin, ClientNameMixin):
-    list_display = ('client_name', 'category', 'amount', 'name')
+    list_display = ('client_name', 'category', 'amount')
     search_fields = ['client__last_name', 'client__first_name']
 
 

@@ -1,3 +1,4 @@
+import re
 import json
 
 from time import mktime
@@ -8,6 +9,7 @@ from datetime import datetime, timedelta, date
 from django.shortcuts import render_to_response, redirect
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 from django.contrib.auth import logout as user_logout, login as user_login
 from django.contrib.auth.decorators import login_required
@@ -15,12 +17,14 @@ from django.contrib.auth import authenticate
 
 from .models import Appointment, Client, Phone, Address, Dependent, Homeless, \
     Employment, Reference, Conviction, Comment, Church, Finance, Assignment, \
-    Assistance, Document
+    Assistance, Document, ChurchAttendence, IntentToAssist
 
 from .models import Sex, Consideration, State, HomelessLocation, HomelessCause, \
     DependentRelation, Termination, ReferenceCategory, ConvictionCategory, \
     CommentCategory, Connection, AssistanceCategory, AssignmentCategory, Frequency, \
     AppointmentReasonCategory, AppointmentReferralCategory, FinanceCategory
+
+from .utils import date_from_string
 
 
 class MissingDataError (Exception):
@@ -92,8 +96,12 @@ def index(request):
     cutoff = today - timedelta(days=30)
 
     appointments = Appointment.objects.filter(start__contains=today).order_by('start')
+
     assignments = Assignment.objects.filter(due__contains=today, completed=False)
     assignments_late = Assignment.objects.filter(due__range=(cutoff, yesterday), completed=False).order_by('-due')
+
+    intentions_pending = IntentToAssist.objects.filter(submitted=None,completed=None).order_by('-created')
+    intentions_submitted = IntentToAssist.objects.filter(submitted__isnull=False,completed=None).order_by('-created')
 
     clients = Client.objects.count()
 
@@ -101,6 +109,8 @@ def index(request):
        'appointments': appointments,
        'assignments_today': assignments,
        'assignments_late': assignments_late,
+       'intentions_pending': intentions_pending,
+       'intentions_submitted': intentions_submitted,
        'client_count': clients,
     })
 
@@ -128,7 +138,7 @@ def appointment(request, appointment_id):
             'prior': prior,
         })
   
-    return render_to_response('select-appointment.template', context)
+    return render_to_response('pages/select-appointment.template', context)
 
 
 @login_required
@@ -227,7 +237,7 @@ def new_appointment(request):
         client = Client.objects.get(pk=client)
         context['client'] = client
     
-    return render_to_response('schedule-appointment.template', context)
+    return render_to_response('pages/schedule-appointment.template', context)
 
 
 @login_required
@@ -283,30 +293,69 @@ def get_calendar_appointments(request):
     return JsonResponse(payload)
 
 
+search_clients_patterns = {
+    'name': re.compile(r'^(\w+)$'),
+    'full': re.compile(r'^(\w+)[, ](\w+)$'),
+    'date': re.compile(r'^(\d{2}/\d{2}/\d{4})$')
+}
+
 @login_required
 def search_clients(request):
     # See: https://github.com/biggora/bootstrap-ajax-typeahead
 
+    def f(d, p):
+        m = d[1].search(p) 
+        return None if not m else (d[0], m)
+
     if request.is_ajax():
        query = request.GET['query']
 
-       last = Client.objects.filter(last_name__iexact=query).count()
-       first = Client.objects.filter(first_name__iexact=query).count()
-       phone = Phone.objects.filter(number=query).count()
-       dependents = Dependent.objects.filter(name__iexact=query).count()
+       pair = reduce(lambda l,r: l if l else f(r, query), search_clients_patterns.items(), None)
 
-       if ' ' in query:
-           parts = query.split(' ', maxsplit=1)
-           full = Client.objects.filter(first_name__iexact=parts[0], last_name__iexact=parts[1]).count() 
-       else:
-           full = 0
+       if not pair:
+           options = [
+             {'id': 'last|{}'.format(query), 'name': query, 'type': 'Last Name', 'matches': 0 },
+             {'id': 'first|{}'.format(query), 'name': query, 'type': 'First Name', 'matches': 0 },
+             {'id': 'full|{}'.format(query), 'name': query, 'type': 'Full Name', 'matches': 0 },
+             {'id': 'birthdate|{}'.format(query), 'name': query, 'type': 'Birth Date', 'matches': 0 },
+             {'id': 'phone|{}'.format(query), 'name': query, 'type': 'Phone Number', 'matches': 0 },
+             {'id': 'dependents|{}'.format(query), 'name': query, 'type': 'Dependent', 'matches': 0 },
+           ]
+     
+           return JsonResponse(options, safe=False)
+    
+       name, match = pair
+ 
+       if name == 'full':
+           f, l = match.group(1), match.group(2)
+    
+           full = Client.objects.filter(first_name__iexact=f, last_name__iexact=l).count()
+           dependent = Dependent.objects.filter(first_name__iexact=f, last_name__iexact=l).count()
+
+           last, first, phone, birthdate = 0, 0, 0, 0
+       elif name == 'date':
+           d = match.group(1)
+           d = date_from_string(d, format='%m/%d/%Y')
+
+           birthdate = Client.objects.filter(birthdate=d).count()
+           birthdate += Dependent.objects.filter(birthdate=d).count()
+
+           last, first, phone, full, dependent = 0, 0, 0, 0, 0
+       elif name == 'name':
+           n = match.group(1)
+           last = Client.objects.filter(last_name__iexact=n).count()
+           first = Client.objects.filter(first_name__iexact=n).count()
+           phone = Phone.objects.filter(number=n).count()
+
+           full, dependent, birthdate = 0, 0, 0
  
        options = [
          {'id': 'last|{}'.format(query), 'name': query, 'type': 'Last Name', 'matches': last },
          {'id': 'first|{}'.format(query), 'name': query, 'type': 'First Name', 'matches': first },
          {'id': 'full|{}'.format(query), 'name': query, 'type': 'Full Name', 'matches': full },
+         {'id': 'birthdate|{}'.format(query), 'name': query, 'type': 'Birth Date', 'matches': birthdate },
          {'id': 'phone|{}'.format(query), 'name': query, 'type': 'Phone Number', 'matches': phone},
-         {'id': 'dependents|{}'.format(query), 'name': query, 'type': 'Dependent', 'matches': dependents}
+         {'id': 'dependents|{}'.format(query), 'name': query, 'type': 'Dependent', 'matches': dependent},
        ]
 
        return JsonResponse(options, safe=False)
@@ -347,14 +396,38 @@ def add_comment(request, client_id):
 def list_clients(request):
 
     client_field_lookup = {
-        'last': (lambda n: {'last_name__iexact': n}, ('last_name', 'first_name', 'birthdate')),
-        'first': (lambda n: {'first_name__iexact': n}, ('first_name', 'last_name', 'birthdate')),
-        'full': (lambda n: {'last_name__iexact': n.split(' ')[1], 'first_name__iexact': n.split(' ')[0]}, ('last_name', 'first_name', 'birthdate')),
-        'dependents': (lambda n: {'dependents__name__iexact': n}, ('last_name', 'first_name', 'birthdate')),
+        'last': (
+            lambda n: {'last_name__iexact': n}, 
+            ('last_name', 'first_name', 'birthdate')
+        ),
+        'first': (
+            lambda n: {'first_name__iexact': n}, 
+            ('first_name', 'last_name', 'birthdate')
+        ),
+        'full': (
+            lambda n: {'last_name__iexact': n.split(' ')[1], 'first_name__iexact': n.split(' ')[0]}, 
+            ('last_name', 'first_name', 'birthdate')
+        ),
+        'dependents': (
+            lambda n: {'dependents__first_name__iexact': n.split(' ')[0], 'dependents__last_name__iexact': n.split(' ')[1]}, 
+            ('last_name', 'first_name', 'birthdate')
+        ),
     }
 
     phone_field_lookup = {
-        'phone': (lambda n: {'number': n}, ('number', 'client__last_name', 'client__first_name')),
+        'phone': (
+            lambda n: {'number': n}, 
+            ('number', 'client__last_name', 'client__first_name')
+        ),
+    }
+
+    date_field_lookup = {
+        'birthdate': (
+            lambda d: {
+                Q(Q(birthdate=date_from_string(d, format='%m/%d/%Y')) | Q(dependents__birthdate=date_from_string(d, format='%m/%d/%Y')))
+            },
+            ('last_name', 'first_name')
+        )
     }
 
     if request.is_ajax():
@@ -369,6 +442,10 @@ def list_clients(request):
             parameters = transformer(request_name)
             phones = Phone.objects.filter(**parameters).order_by(*order)
             clients = [phone.client for phone in phones]
+        elif request_type in date_field_lookup:
+            transformer, order = date_field_lookup[request_type]
+            parameters = transformer(request_name)
+            clients = Client.objects.filter(*parameters).order_by(*order)
 
         return render_to_response('fragment/lists/clients.template', {'clients': clients})
 
@@ -398,15 +475,16 @@ def view_client(request, client_id):
         'employment_reasons': Termination.objects.all().order_by('name'),
         'reference_choices': ReferenceCategory.objects.all().order_by('name'),
         'conviction_choices': ConvictionCategory.objects.all().order_by('name'),
+        'churches': Church.objects.all().order_by('name'),
         'church_connection_choices': Connection.objects.all().order_by('name'),
         'comment_category_choices': CommentCategory.objects.all().order_by('name'),
         'assistance_category_choices': AssistanceCategory.objects.all().order_by('name'),
-        'assignment_category_choices': AssignmentCategory.objects.all().order_by('name')
+        'assignment_category_choices': AssignmentCategory.objects.all().order_by('name'),
+        'finance_categories': FinanceCategory.objects.all().order_by('name')
     })
 
     context.update({
-        'appointments_upcoming': Appointment.objects.filter(client=client).filter(start__gte=now),
-        'appointments_past': Appointment.objects.filter(client=client).filter(start__lt=now),
+        'appointments': Appointment.objects.filter(client=client),
     })
 
     if has_form_error(request):
@@ -587,24 +665,53 @@ def save_homeless(request, client_id):
 
 
 @login_required
+def add_finance(request, client_id):
+
+    if request.method == 'POST':
+        try:
+            category = form_field(request, 'category', 'Income Category')
+            amount = int(form_field(request, 'amount', 'Income Amount'))
+            person = int(form_field(request, 'person', 'Income Earner / Person'))
+        except MissingDataError as error:
+            form_error(request, error.message)
+            return redirect('view_client', client_id=client_id)
+
+        category = FinanceCategory.objects.get(pk=category)
+        client = Client.objects.get(pk=client_id)
+        person = None if person is 0 else Dependent.objects.get(pk=person)
+
+        Finance.create(amount, category, client, person).save()
+
+    return redirect('view_client', client_id=client_id) 
+
+
+@login_required
+def delete_finance(request, client_id, finance_id):
+
+    Finance.objects.filter(pk=finance_id).delete()
+    return redirect('view_client', client_id=client_id)
+
+
+@login_required
 def add_dependent(request, client_id):
 
     if request.method == 'POST':
         try:
-            name = form_field(request, 'dependent_name', 'Dependent Name')
-            birthdate = form_field(request, 'dependent_birthdate', 'Dependent Birth Date')
-            relation = form_field(request, 'dependent_relation', 'Dependent Relationship')
+            last_name = form_field(request, 'last_name', 'Dependent Last Name')
+            first_name = form_field(request, 'first_name', 'Dependent Last Name')
+            birthdate = form_field(request, 'birthdate', 'Dependent Birth Date')
+            relation = form_field(request, 'relation', 'Dependent Relationship')
         except MissingDataError as error:
             form_error(request, error.message)
             return redirect('view_client', client_id=client_id)
 
         queryset = Client.objects.filter(pk=client_id)
         client = queryset[0] if queryset else None
-        queryset = Dependent.objects.filter(name=name, client__pk=client_id)
+        queryset = Dependent.objects.filter(last_name=last_name, first_name=first_name, client__pk=client_id)
         dependent = queryset[0] if queryset else None
 
         if client and not dependent:
-            dependent = Dependent.create(name, birthdate, DependentRelation.objects.get(pk=relation), client)
+            dependent = Dependent.create(last_name, first_name, birthdate, DependentRelation.objects.get(pk=relation), client)
             dependent.save()
         else:
             form_error(request, 'Dependent already exists for client')
@@ -626,7 +733,7 @@ def save_church(request, client_id):
 
     if request.method == 'POST':
         try:
-            name = form_field(request, 'church_name', 'Church Name')
+            church = form_field(request, 'church', 'Church Name')
             attendence = form_field(request, 'church_attendence', 'Church Attendence')
             connection = form_field(request, 'church_connection', 'Church Connection')
         except MissingDataError as error:
@@ -636,11 +743,12 @@ def save_church(request, client_id):
         queryset = Client.objects.filter(pk=client_id)
         client = queryset[0] if queryset else None
 
+        church = Church.objects.get(pk=church)
         attendence = Frequency.objects.get(pk=attendence)
         connection = Connection.objects.get(pk=connection)
 
-        Church.objects.filter(client=client).delete()
-        Church.create(name, attendence, connection, client).save()
+        ChurchAttendence.objects.filter(client=client).delete()
+        ChurchAttendence.create(church, attendence, connection, client).save()
 
     return redirect('view_client', client_id=client_id)
 
@@ -840,6 +948,18 @@ def save_assistance(request, client_id, assistance_id):
             assistance.rejected = True
             assistance.assignment = None
             assistance.save()
+        elif 'intent' in request.POST:
+            assistance.issued = datetime.today()
+            assistance.blocked = False
+            assistance.rejected = False
+            assistance.assignment = None
+            assistance.save()
+
+            intent = IntentToAssist()
+            intent.assistance = assistance
+            intent.amount = assistance.value
+            intent.notes = assistance.details
+            intent.save()
         elif 'assign' in request.POST:
             try:
                 assignment = form_field(request, 'assistance_assignment', '', required=False)
@@ -852,6 +972,56 @@ def save_assistance(request, client_id, assistance_id):
             assistance.save()
 
     return redirect('view_client', client_id=client_id)
+
+
+@login_required
+def view_intent(request, client_id, intent_id):
+
+    context = standard_context(request)
+    intent = IntentToAssist.objects.get(pk=intent_id)
+    context.update({
+        'intent': intent,
+        'churches': Church.objects.all().order_by('name'),
+    })
+
+    return render_to_response('pages/intent.template', context)
+
+
+@login_required
+def generate_intent_form(request, intent_id):
+
+    if request.method == 'POST':
+        intent = IntentToAssist.objects.get(pk=intent_id)
+
+        try:
+            church = form_field(request, 'church', '')
+            amount = int(form_field(request, 'amount', ''))
+            notes = form_field(request, 'notes', '', required=False)
+            payee = form_field(request, 'payee', '')
+            payee_phone = form_field(request, 'payee_phone', '')
+            payee_address = form_field(request, 'payee_address', '', required=False)
+            payee_memo = form_field(request, 'payee_memo', '', required=False)
+        except MissingDataError as error:
+            form_error(request, error.message)
+            return redirect('view_intent', client_id=intent.assistance.client.pk, intent_id=intent_id)
+
+        intent.church = Church.objects.get(pk=church)
+        intent.amount = amount
+        intent.notes = notes
+        intent.payee = payee
+        intent.payee_phone = payee_phone
+        intent.payee_address = payee_address
+        intent.payee_memo = payee_memo
+        intent.submitted = datetime.today()
+        intent.save()
+
+        context = standard_context(request)
+
+        context.update({
+            'intent': intent,
+        })
+
+        return render_to_response('forms/intent-form.html', context)
 
 
 @login_required
@@ -881,30 +1051,6 @@ def add_comment(request, client_id):
             client=client
         ).save()
 
-
-    return redirect('view_client', client_id=client_id)
-
-
-@login_required
-def save_finances(request, client_id):
-
-    if request.method == 'POST':
-        queryset = Client.objects.filter(pk=client_id)
-        client = queryset[0] if queryset else None
-
-        body = request.body.decode()
-        payload = json.loads(body) 
-
-        if 'income' in payload and 'expenses' in payload:
-            Finance.objects.filter(client=client).delete()
-            
-            income = FinanceCategory.objects.get(name='Income')
-            expense = FinanceCategory.objects.get(name='Expense')
-
-            for name, amount in payload.get('income', {}).items():
-                Finance.create(amount, name, income, client).save()
-            for name, amount in payload.get('expenses', {}).items():
-                Finance.create(amount, name, expense, client).save()                
 
     return redirect('view_client', client_id=client_id)
 

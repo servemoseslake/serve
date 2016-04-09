@@ -15,7 +15,7 @@
      
       {% for dependent in dependents  %}
       <tr>
-        <td> {{ dependent.name }} </td>
+        <td> {{ dependent.full_name }} </td>
         <td> {{ dependent.age }} </td>
         <td> {{ dependent.relation }} </td>
         <td>

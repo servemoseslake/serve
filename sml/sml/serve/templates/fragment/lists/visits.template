@@ -1,6 +1,7 @@
 
-{% if appointments_upcoming %}
-{% with appointments_upcoming as appointments %}
+{% load customtags %}
+
+{% query appointments start__gte=now as appointments_pending %}
 <table id="visits_upcoming_list" class="table table-hover"> 
   <caption> Upcoming Appointments </caption>
   <thead>
@@ -8,11 +9,11 @@
       <td>Date</td>
       <td>Time</td>
       <td>In-take</td>
-      <td>Scheduler</td>
+      <td>Scheduled By</td>
     </tr>
   </thead>
   <tbody>
-    {% for appointment in appointments %}
+    {% for appointment in appointments_pending %}
     <tr>
       <td> {{ appointment.start|date:"M j Y" }} </td>
       <td> {{ appointment.start|time:"g A" }} </td>
@@ -21,15 +22,13 @@
     </tr>
     {% empty %}
     <tr>
-      <td colspan="3"> No Appointments Found </td>
+      <td colspan="4"> No Appointments Found </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endwith %}
-{% endif %}
 
-{% with appointments_past as appointments %}
+{% query appointments start__lt=now as appointments_past %}
 <table id="visits_list" class="table table-hover">
   <caption> Past Appointments </caption>
   <thead>
@@ -37,11 +36,11 @@
       <td>Date</td>
       <td>Time</td>
       <td>In-take</td>
-      <td>Scheduler</td>
+      <td>Scheduled By</td>
     </tr>
   </thead>
   <tbody>
-    {% for appointment in appointments %}
+    {% for appointment in appointments_past %}
     <tr>
       <td> {{ appointment.start|date:"M j Y" }} </td>
       <td> {{ appointment.start|time:"g A" }} </td>
@@ -50,17 +49,18 @@
         <p class="text-danger"> Canceled </p> 
       {% elif appointment.seen_by %} 
         {{ appointment.seen_by.first_name }} 
-      {% else %}
+      {% elif appointment|appointment_expired %}
         <p class="text-danger"> No-Show </p>
+      {% else %}
+        <p class="text-primary"> Open </p>
       {% endif %} 
       </td>
       <td> {{ appointment.scheduled_by.first_name }} </td>
     </tr>
     {% empty %}
     <tr> 
-      <td colspan="3"> No Appointments Found </td>
+      <td colspan="4"> No Appointments Found </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endwith %}
