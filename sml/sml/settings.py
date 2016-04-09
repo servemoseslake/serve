@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ABC123'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -37,27 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'storages',
     'sml.serve',
 )
-
-AWS_STORAGE_BUCKET_NAME = 'serve-app'
-AWS_ACCESS_KEY_ID = 'AKIAIILGJDD765WVYA3Q'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
-
-STATIC_URL = "https://{}/".format(AWS_S3_CUSTOM_DOMAIN)
-STATICFILES_LOCATION = 'static'
-STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-
-MEDIAFILES_LOCATION = 'media'
-MEDIA_URL = "https://{}/{}/".format(AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
-DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
-
-AWS_HEADERS = {
-    'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
-    'Cache-Control': 'max-age=94608000',
-}
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -101,10 +82,10 @@ WSGI_APPLICATION = 'sml.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'NAME': 'sml',
+        'USER': 'sml',
+        'PASSWORD': 'sml',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
         'CONN_MAX_AGE': 300,
     }
@@ -134,8 +115,10 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    '/home/centos/production/serve/sml/sml/components',
+    os.path.join(BASE_DIR, 'static'),
+    '/home/sml/development/serve/sml/sml/components',
 )
 
 LOGIN_URL='/login'
@@ -148,3 +131,5 @@ FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
 
+MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
+MEDIA_URL='/content/'
