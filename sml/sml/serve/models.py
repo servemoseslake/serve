@@ -627,7 +627,6 @@ class IntentToAssist (models.Model):
         verbose_name_plural = 'Intents To Assist'
         verbose_name = 'Intent To Assist'
 
-
 def document_path(instance, filename):
     return '/'.join(['clients', 'documents', str(instance.client.pk), filename])
 
