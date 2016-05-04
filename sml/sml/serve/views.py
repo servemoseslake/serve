@@ -447,6 +447,8 @@ def list_clients(request):
             parameters = transformer(request_name)
             clients = Client.objects.filter(*parameters).order_by(*order)
 
+        clients = clients.distinct()
+
         return render_to_response('fragment/lists/clients.template', {'clients': clients})
 
 
