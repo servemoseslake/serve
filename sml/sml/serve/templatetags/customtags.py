@@ -75,6 +75,10 @@ def flatten(first, second):
 def query(qs, **kwargs):
     return qs.filter(**kwargs)
 
+@register.filter(name='order')
+def order(qs, args):
+    return qs.order_by(args)
+
 @register.filter(name='appointment_expired')
 def appointment_expired(appointment, minutes=60, now=None):
     now = now if now else datetime.now()
