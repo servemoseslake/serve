@@ -97,7 +97,7 @@ def index(request):
 
     appointments = Appointment.objects.filter(start__contains=today).order_by('start')
 
-    assignments = Assignment.objects.filter(due__contains=today, completed=False)
+    assignments = Assignment.objects.filter(due__contains=today, completed=False, abandoned=False)
     assignments_late = Assignment.objects.filter(due__range=(cutoff, yesterday), completed=False).order_by('-due')
 
     intentions_pending = IntentToAssist.objects.filter(submitted=None,completed=None).order_by('-created')
@@ -942,19 +942,16 @@ def save_assistance(request, client_id, assistance_id):
             assistance.issued = None
             assistance.blocked = True
             assistance.rejected = False
-            assistance.assignment = None
             assistance.save()
         elif 'reject' in request.POST:
             assistance.issued = None
             assistance.blocked = False
             assistance.rejected = True
-            assistance.assignment = None
             assistance.save()
         elif 'intent' in request.POST:
             assistance.issued = datetime.today()
             assistance.blocked = False
             assistance.rejected = False
-            assistance.assignment = None
             assistance.save()
 
             intent = IntentToAssist()
