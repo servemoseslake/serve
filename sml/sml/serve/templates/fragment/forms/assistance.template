@@ -23,7 +23,7 @@
   <div class="form-group">
     <label for="started" class="control-label col-sm-2"> Date </label>
     <div class="col-sm-2">
-      <input type="date" class="form-control" name="started" data-toggle="tooltip" data-placement="right" title="The approximate date on which the request was made.">
+      <input type="date" class="form-control" name="started" value="{% now 'Y-m-d' %}" data-toggle="tooltip" data-placement="right" title="The approximate date on which the request was made.">
     </div>
   </div>
 
