@@ -362,14 +362,21 @@ def search_clients(request):
 
 
 @login_required
-def get_comment(request):
+def get_comment(request, client_id):
 
     if request.is_ajax():
+
         comment_id = request.GET['id']
         queryset = Comment.objects.filter(pk=comment_id)
         comment = queryset[0] if queryset else None
 
-        return render_to_response('fragment/details/comment.template', {'comment': comment})
+        queryset = Client.objects.filter(pk=client_id)
+        client = queryset[0] if queryset else None
+
+        context = standard_context(request)
+        context.update({'comment': comment, 'client': client})
+
+        return render_to_response('fragment/details/comment.template', context)
 
 
 @login_required
@@ -388,6 +395,23 @@ def add_comment(request, client_id):
         client = queryset[0] if queryset else None
 
         Comment.create(category, content, request.user, client).save()
+
+    return redirect('view_client', client_id=client_id)
+
+
+@login_required
+def save_comment(request, client_id, comment_id):
+
+    if request.method == 'POST':
+        try:
+            content = form_field(request, 'comment_content', 'Comment Content')
+        except MissingDataError as error:
+            form_error(request, error.message)
+            return redirect('view_client', client_id=client_id)
+
+        comment = Comment.objects.get(pk=comment_id)
+        comment.content = content
+        comment.save()
 
     return redirect('view_client', client_id=client_id)
 
