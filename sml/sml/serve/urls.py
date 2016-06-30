@@ -19,7 +19,9 @@ urlpatterns = [
     url(r'client/(?P<client_id>\d+)/save$', 'sml.serve.views.save_client', name='save_client'),
     url(r'client/(?P<client_id>\d+)$', 'sml.serve.views.view_client', name='view_client'),
 
-    url(r'client/comment$', 'sml.serve.views.get_comment', name='get_comment'),
+    url(r'client/(?P<client_id>\d+)/comment$', 'sml.serve.views.get_comment', name='get_comment'),
+    url(r'client/(?P<client_id>\d+)/comment/(?P<comment_id>\d+)$', 'sml.serve.views.save_comment', name='save_comment'),
+
     url(r'client/(?P<client_id>\d+)/intent/(?P<intent_id>\d+)$', 'sml.serve.views.view_intent', name='view_intent'),
     url(r'intent/(?P<intent_id>\d+)/form$', 'sml.serve.views.generate_intent_form', name='generate_intent_form'),
 

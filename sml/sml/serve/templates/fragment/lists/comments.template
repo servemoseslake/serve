@@ -84,7 +84,7 @@
         var comment_id = id.split('_', 2)[1];
 
         $.ajax({
-          url: '{% url "get_comment" %}',
+          url: '{% url "get_comment" client_id=client.pk %}',
           data: 'id=' + comment_id,
           method: 'get'
         })

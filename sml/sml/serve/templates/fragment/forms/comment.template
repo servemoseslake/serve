@@ -17,7 +17,7 @@
     <div class="form-group">
       <label for="comment_category" class="control-label col-sm-2"> Category </label>
       <div class="col-sm-6">
-        <select class="form-control" name="comment_category" data-toggle="tooltip" data-placement="right" title="Category for this comment. Informational, the default, will display the comment normally. Warning will highlight the comment in a yellow background, while Danger will highlight the comment in a red background.">
+        <select class="form-control" name="comment_category">
           {% for choice in comment_category_choices %}
           <option value="{{ choice.pk }}"> {{ choice.name }} </option>
           {% endfor %}
