@@ -479,10 +479,12 @@ def list_clients(request):
 @login_required
 def view_client(request, client_id):
 
+    queryset = Client.objects.filter(pk=client_id)
+    client = queryset[0] if queryset else None
+
     now = datetime.now()
     today = now.today()
 
-    client = Client.objects.get(pk=client_id)
     context = standard_context(request)
     context.update({
         'client': client,
@@ -517,6 +519,35 @@ def view_client(request, client_id):
         context.update({'error': form_error(request)})
 
     return render_to_response('client.template', context)
+
+
+@login_required
+def new_client(request):
+
+    context = standard_context(request)
+    today = datetime.now().today()
+
+    if request.method == 'POST':
+        try:
+            last = form_field(request, 'last_name', 'Last Name')
+            first = form_field(request, 'first_name', 'First Name')
+            birthdate = form_field(request, 'birthdate', 'Birth Date')
+            sex = form_field(request, 'sex', 'Sex')
+        except MissingDataError as error:
+            return redirect('index')        
+
+        client = Client.create(
+            last,
+            first,
+            birthdate,
+            sex
+        )
+        client.save()
+
+        return redirect('view_client', client_id=client.pk)
+    else:
+        context.update({'sexes': Sex.objects.all().order_by('name')})
+        return render_to_response('pages/add-new-client.template', context)
 
 
 @login_required

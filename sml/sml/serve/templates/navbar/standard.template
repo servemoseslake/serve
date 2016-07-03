@@ -22,7 +22,7 @@
             <li>
               <form class="navbar-form" role="search">
                 <div class="form-group">
-                  <input type="text" class="form-control" size="35" autocomplete="off" class="form-control typeahead" id="client_search" name="client_search" placeholder="Client Name, Phone, or Birthday.." data-toggle="tooltip" data-placement="right" title="Content in the search box will be used to find clients by last name, first name, and phone number. All name matches are case-insensitive. Matches are displayed when found."/>
+                  <input type="text" class="form-control" size="35" autocomplete="off" class="form-control typeahead" id="client_search" name="client_search" placeholder="Client Name, Phone, or Birthday.." />
                 </div>
               </form>
             </li>
@@ -31,6 +31,11 @@
             <li>
               <form method="get" action="{% url 'new_appointment' %}">
                 <button type="submit" class="btn navbar-btn btn-primary"> New Appointment </button>
+              </form>
+            </li>
+            <li>
+              <form method="get" action="{% url 'new_client' %}">
+                <button type="submit" class="btn navbar-btn btn-primary"> New Client </button>
               </form>
             </li>
             <li><a href="{% url 'view_calendar' %}"> Appointment Calendar </a></li>

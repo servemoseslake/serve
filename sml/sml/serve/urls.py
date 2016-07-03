@@ -13,7 +13,8 @@ urlpatterns = [
 
     url(r'calendar/appointments$', 'sml.serve.views.get_calendar_appointments', name='get_calendar_appointments'),
     url(r'calendar$', 'sml.serve.views.view_calendar', name='view_calendar'),
-
+ 
+    url(r'client/new$', 'sml.serve.views.new_client', name='new_client'),
     url(r'client/search$', 'sml.serve.views.search_clients', name='search_clients'),
     url(r'client/list$', 'sml.serve.views.list_clients', name='list_clients'),
     url(r'client/(?P<client_id>\d+)/save$', 'sml.serve.views.save_client', name='save_client'),

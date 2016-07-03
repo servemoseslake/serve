@@ -121,12 +121,13 @@ class Client (models.Model):
         return None if not primaries else primaries[0]
 
     @classmethod
-    def create(cls, last_name, first_name, birthdate): 
+    def create(cls, last_name, first_name, birthdate, sex=None): 
         return cls(
             last_name=last_name.strip().capitalize(),
             first_name=first_name.strip().capitalize(),
             birthdate=date_from_string(birthdate),
-            created=date.today()
+            created=date.today(),
+            sex = Sex.objects.get(pk=sex) if sex else None
         )
 
 
