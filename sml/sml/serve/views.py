@@ -530,6 +530,7 @@ def save_client(request, client_id):
             birthdate = form_field(request, 'birthdate', 'Birth Date')
             consideration = form_field(request, 'consideration', 'Special Consideration')
             caution = form_field(request, 'caution', '', required=False)
+            joined = form_field(request, 'joined', 'Join Date')
         except MissingDataError as error:
             form_error(request, error.message)
             return redirect('view_client', client_id=client_id)
@@ -544,6 +545,7 @@ def save_client(request, client_id):
             client.birthdate = birthdate
             client.consideration = Consideration.objects.get(pk=consideration)
             client.caution = False if not caution else True
+            client.created = joined
             client.save()
 
             for appointment in client.appointments.all():
