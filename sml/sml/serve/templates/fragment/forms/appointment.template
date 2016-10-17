@@ -42,6 +42,13 @@
       </div>
     </div>
     {% if client %}
+
+    {% if client.caution %}
+    <div class="form-group">
+      <p class="text-danger"> Caution w/ Appointment - See client record </p>
+    </div>
+    {% endif %}
+
     <div class="form-group">
       <input type="hidden" name="client" value="{{ client.pk }}"/>
       <a href="{% url 'view_client' client_id=client.pk %}"> View Client Record </a>
