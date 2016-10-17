@@ -7,6 +7,7 @@
       <tr>
         <td>Date</td>
         <td>Author</td>
+        <td>Category</td>
         <td>Comment</td>
       </tr>
     </thead>
@@ -15,15 +16,20 @@
      
       {% for comment in comments|dictsortreversed:"created"  %}
 
-      {% if comment.category.name == 'Warning' %} 
-      <tr id="comment_{{ comment.pk }}" class="danger">
-      {% elif comment.category.name == 'Caution' %} 
-      <tr id="comment_{{ comment.pk }}" class="warning">
-      {% else %}
       <tr id="comment_{{ comment.pk }}">
-      {% endif %} 
         <td> {{ comment.created|date:"m/d/Y" }} </td>
         <td> {{ comment.author.first_name }} </td>
+        <td>
+          {% if comment.category.name == 'Warning' %} 
+          <p class="text-danger">
+          {% elif comment.category.name == 'Caution' %} 
+          <p class="text-warning">
+          {% else %}
+          <p>
+          {% endif %} 
+            {{ comment.category.name }}
+          </p>
+        </td>
         <td> {{ comment.content|truncatechars:32 }} </td>
       </tr>
       {% empty %}
